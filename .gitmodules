@@ -1,3 +1,6 @@
 [submodule "TokenTacticsV2"]
 	path = TokenTacticsV2
 	url = https://github.com/f-bader/TokenTacticsV2
+[submodule "TokenTactics"]
+	path = TokenTactics
+	url = https://github.com/rvrsh3ll/TokenTactics
