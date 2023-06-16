@@ -1,11 +1,7 @@
 [CmdletBinding()]
 param (
     [Parameter(ValueFromPipeline=$true)]
-    [string]$user,
-    [Parameter(ValueFromPipeline=$true)]
-    [string]$domain.
-    [Parameter(ValueFromPipeline=$true)]
-    [string]$teamsUser.
+    [string]$teamsUser,
     [Parameter(ValueFromPipeline=$true)]
     [string]$teamsMessage
 )
