@@ -32,7 +32,7 @@ Get-AzureToken -Client Graph
 # Get-AzureToken -Client Graph -CaptureCode $Token 
 
 if(!($response)){ Read-Host "User didn't bite, try again."} else {
-$access = $response.acess_token
+$access = $response.access_token
 $refresh = $response.refresh_token
 Add-AADIntAccessTokenToCache -AccessToken $access -RefreshToken $refresh
 
