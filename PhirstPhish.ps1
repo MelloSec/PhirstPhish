@@ -266,6 +266,6 @@ if ($teamsUser) {
 Write-Output "Would you like to open the user's mailbox in the browser?"
 Read-Host "Press enter for instructions or Ctrl+C to cancel"
 Invoke-RefreshToSubstrateToken -refreshToken $response.refresh_token -domain $domain -Device AndroidMobile -Browser Android
-Invoke-OpenOWAMailboxInBrowser -AccessToken $SubstrateToken.access_token -Device Mac -Browser Edge
+Invoke-OpenOWAMailboxInBrowser -AccessToken $SubstrateToken.access_token -Device iPhone -Browser Edge
 
 }
