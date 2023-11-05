@@ -197,12 +197,6 @@ $jsonData = $msgs | ConvertTo-Json
 $jsonData | Out-File -FilePath "$user.teams.json"
 
 # Example Teams message information
-$teamsMessage = @{
-    Body = @{
-        ContentType = "html"
-        Content = $messageContent
-    }
-}
 
 # Delay between retries (in seconds)
 $retryDelay = 5
@@ -213,11 +207,19 @@ if (-not $messageContent) {
     $messageContent = "You have taken the bait in a phishing simulation. This message is to simulate an attacker taking control of this account. Please follow up with your IT security team."
 }
 
+$teamsMessage = @{
+    Body = @{
+        ContentType = "html"
+        Content = $messageContent
+    }
+}
+
+
 # Function to handle message sending with retry logic
 function Send-TeamsMessageWithRetry {
     param(
         [string]$Recipient,
-        [string]$Message
+        [hashtable]$teamsMessage
     )
 
     $retryCount = 0
@@ -249,12 +251,12 @@ if ($teamsUser) {
             Set-AADIntTeamsStatusMessage -Message "Gone Phishin'" -AccessToken $MSTeamsToken.access_token -Verbose
             
             Write-Output "Sending Teams messages..."
-            Send-TeamsMessageWithRetry -Recipient $user.UserPrincipalName -Message $messageContent
+            Send-TeamsMessageWithRetry -Recipient $user.UserPrincipalName -Message $teamsMessage
         }
     } else {
         Write-Output "Setting user status message to 'Gone Phishin'"
         Set-AADIntTeamsStatusMessage -Message "Gone Phishin'" -AccessToken $MSTeamsToken.access_token -Verbose
-        Send-TeamsMessageWithRetry -Recipient $teamsUser -Message $messageContent
+        Send-TeamsMessageWithRetry -Recipient $teamsUser -Message $teamsMessage
     }
 } else {
     Write-Host "No Teams user specified. Skipping message sending."
