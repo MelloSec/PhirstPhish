@@ -26,13 +26,13 @@ No additional phishing, have token
 .\PhirstPhish.ps1 -token $Token
 ```
 
-Internal phishing an additional mailbox with compromised account
+Internal Phishing - additional mailbox with compromised account
 
 ```powershell
 .\PhirstPhish.ps1 -messageContent "Hey, did you see who they're letting go? Check it out https://notices.azurewebsites.net/terminations.pdf" -targetUser accounting@corpomax.com
 ```
 
-Chaos Phishing the Tenant
+Chaos Phishing - Blast the Whole Tenant using the generated users list
 
 ```powershell
 .\PhirstPhish.ps1 -messageContent "Hey, did you see who they're letting go? Check it out https://notices.azurewebsites.net/terminations.pdf" -targetUser all
@@ -47,5 +47,5 @@ Shout-out to Steve Borosh https://github.com/rvrsh3ll for the amazing TokenTacti
 
 Shout-out to the venerable Dr Nestori Syynimaa (@DrAzureAD), too, for laying all the groundwork with AADInternals https://github.com/Gerenios/AADInternals, used here extensively. Hell of a toolbox and his blog is like a free AzureAD pentesting e-book.
 
-PRs welcome
+PRs welcome!
 
