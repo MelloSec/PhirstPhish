@@ -1,19 +1,3 @@
-# if (-not (Get-Module -Name AADInternals -ListAvailable)) { Write-Output "Importing AADInternals";
-#     Import-Module AADInternals
-# }
-
-# V2 does not contain -CaptureCode $Token for some reason...
-# if (-not (Get-Module -Name TokenTactics -ListAvailable)) { Write-Output "TokenTactics not found, importing V2 fork from project folder";
-#     Import-Module .\TokenTacticsV2\TokenTactics.psd1
-# }
-
-# TokenTactics latest zip
-# https://github.com/rvrsh3ll/TokenTactics/archive/refs/heads/main.zip
-# if (-not (Get-Module -Name TokenTactics -ListAvailable)) { Write-Output "TokenTactics not found, importing V1 from project folder";
-#     Import-Module .\TokenTactics\TokenTactics.psd1
-# }# Road Tools
-
-
 # ROADtools
 pip install roadlib
 pip install roadrecon
@@ -46,3 +30,4 @@ roadtx prtauth -c msteams -r msgraph
 
 # Register device
 roadtx device -n JustAPrinter
+}
