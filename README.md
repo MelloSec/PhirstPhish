@@ -6,7 +6,7 @@ This is a script to assist in device code phishing during Azure/O365 penetration
 
 It can take a $Token as a parameter if you already have an access token, otherwise, it will generate a device code that you or a targeted user can use to bypass Multi-Factor Authentication from a signed in account.
 
-Script will check your OS and install the required modules and binaries needed for post-exploitation activity automatically. 
+Script will check your OS (Windows or Linux) and install the required modules and Azurehound binary needed for post-exploitation activity automatically. 
 
 Once you receive an access token, the script will automatically perform full recon of tenant, user and groups using AADInternals and Azurehound. Using the latest version of Azurehound, the Azure tenant will be mapped and output to a format you can load into Neo4j for graphing attack paths.
 
@@ -14,7 +14,7 @@ It will dump the compromised users last 200 emails from their inbox, dump all th
 
 <b><u>WARNING:</u></b> Just to re-iterate that last bit.. this will export a lot of sensitive information to the folder you run this from, as that is it's intended purpose. Please clean up your workspace / don't commit the loot to main 
 
-Specifying "-targetUser" and "-messageContent" will let you pass an email address and phishing pretext to use the compromised account as a relay and attempt to move laterally or capitalize on a trusted relationship with a third party. If you instead pass the word "all" for -targetUser you will be warned. If you proceed, your message will be sent to every user in the tenant using the compromised account.
+Specifying "-targetUser" and "-messageContent" will let you pass an email address and phishing pretext to use the compromised account as an internal relay and attempt to move laterally or capitalize on a trusted relationship with an external third party. If you instead pass the word "all" for -targetUser you will be warned. If you proceed, your message will be sent to every user in the tenant using the compromised account.
 
 #### Usage
 
