@@ -12,7 +12,7 @@ Once you receive an access token, the script will automatically perform full rec
 
 It will dump the compromised users last 200 emails from their inbox, dump all their teams messages, and set their status to 'Gone Phishin'" by default. A user list is generated for further phishing attacks, as well as groups, insider recon, etc, in the working directory of the script. 
 
-WARNING: Just to re-iterate that last bit.. this will export a lot of sensitive information to the folder you run this from, as that was it's intended purpose. Please clean up your workspace / don't commit recon to main 
+<u>WARNING:</u> Just to re-iterate that last bit.. this will export a lot of sensitive information to the folder you run this from, as that was it's intended purpose. Please clean up your workspace / don't commit recon to main 
 
 Specifying "-targetUser" and "-messageContent" will let you pass an email address and phishing pretext to use the compromised account as a relay and attempt to move laterally or capitalize on a trusted relationship with a third party. If you instead pass the word "all" for -targetUser you will be warned. If you proceed, your message will be sent to every user in the tenant using the compromised account.
 
