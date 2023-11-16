@@ -4,7 +4,7 @@
 
 This is a script to assist in device code phishing O365 accounts.  It can take a $Token as a parameter if you already have an access token, otherwise, it will generate a device code that you or a user can use to bypass Multi-Factor Authentication from a signed in account.
 
-The script will check your OS and install the required modules and binaries to post-exploitation activity.
+The script will check your OS and install the required modules and binaries needed for post-exploitation activity.
 
 Once you recieve an access token, the script will automatically perform tenant, user and group recon using AADInternals and Azurehound. Using the latest version of Azurehound, the Azure tenant will be mapped and output to a format you can load into Neo4j for attack path mapping.
 
