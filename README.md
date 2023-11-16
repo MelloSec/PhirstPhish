@@ -39,7 +39,7 @@ Chaos Phishing the Tenant
 ```
 
 
-### Acknowledgements 
+#### Acknowledgements 
 
 Huge thanks to Bobby Cook https://github.com/boku7 and Beaux Bulloc khttps://github.com/dafthack for all the amazing Azure/O365 pentesting resources and classes that got me started 
 
