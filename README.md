@@ -38,4 +38,11 @@ Chaos Phishing the Tenant
 .\PhirstPhish.ps1 -messageContent "Hey, did you see who they're letting go? Check it out https://notices.azurewebsites.net/terminations.pdf" -targetUser all
 ```
 
+Huge thanks to Bobby Cook https://github.com/boku7 and Beaux Bulloc khttps://github.com/dafthack for all the amazing Azure/O365 pentesting resources and classes that got me started 
+
+Shout-out to Steve Borosh https://github.com/rvrsh3ll for the amazing TokenTactics module used in Refreshing tokens and certain post-ex activites here, picking apart your code was hugely helpful in understanding this stuff.
+
+Shout-out to the venerable Dr Nestori Syynimaa (@DrAzureAD), too, for laying all the groundwork with AADInternals https://github.com/Gerenios/AADInternals, used here extensively. Hell of a toolbox and his blog is like a free AzureAD pentesting e-book.
+
+PRs welcome
 
