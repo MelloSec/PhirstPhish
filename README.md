@@ -13,9 +13,9 @@ Script will check your OS (Windows or Linux) and install the required modules an
 #### Phase 1 - Recon
 Once you receive an access token, the script will automatically perform full recon of tenant, user and groups using AADInternals and Azurehound. First, a list of users with detailed information (SIDs, valid sessions, phone number, identities) is exported and useable user list for the spreader function is generated. Groups, users, internal recon, etc output to json in the same directory as the script.
 
-![image](https://github.com/MelloSec/PhirstPhish/assets/65114647/83a3398c-bf41-47e3-bfa6-e480bddd0fc2)
-
 ![image](https://github.com/MelloSec/PhirstPhish/assets/65114647/01e9fd43-b20f-48c2-a8b3-9fdc1b5ae6ad)
+
+![image](https://github.com/MelloSec/PhirstPhish/assets/65114647/83a3398c-bf41-47e3-bfa6-e480bddd0fc2)
 
 Using the latest version of Azurehound for your platoform, the Azure tenant will be mapped and output to a format you can load into Neo4j for graphing attack paths. This will show you possible ways you can escalate your privileges across the tenant
 
