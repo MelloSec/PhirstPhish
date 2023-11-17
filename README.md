@@ -17,7 +17,7 @@ Once you receive an access token, the script will automatically perform full rec
 
 ![image](https://github.com/MelloSec/PhirstPhish/assets/65114647/83a3398c-bf41-47e3-bfa6-e480bddd0fc2)
 
-Using the latest version of Azurehound for your platoform, the Azure tenant will be mapped and output to a format you can load into Neo4j for graphing attack paths. This will show you possible ways you can escalate your privileges across the tenant
+Using the latest version of Azurehound for your platform, the Azure tenant will be mapped and output to a format you can load into Neo4j for graphing attack paths. This will show you possible ways you can escalate your privileges across the tenant
 
 ![image](https://github.com/MelloSec/PhirstPhish/assets/65114647/ec598ff5-e82d-4a36-acfb-f887e9b18b55)
 
