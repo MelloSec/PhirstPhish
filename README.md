@@ -96,7 +96,7 @@ OR simply to pick a random subject included.
 
 NOTE: You should replace these subjects from the string array in Next.ps1, they are meant to serve as indicators if you're lazy. Your subjects will say Adobe Cloud and have bizarre requests, you have been warned, down here all quiet like.
 ```
-Next.ps1
+.\Next.ps1
 ```
 
 
