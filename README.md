@@ -94,7 +94,7 @@ $subject = "'FW: Photos of your company's work used in our upcoming 2024 Calenda
 ```
 OR simply to pick a random subject included. 
 
-<u>NOTE: You should replace these subjects from the string array in Next.ps1, they are meant to serve as indicators if you're lazy. Your subjects will say Adobe Cloud and have bizarre requests, you have been warned, down here all quiet like.</u>
+***NOTE: You should replace these subjects from the string array in Next.ps1, they are meant to serve as indicators if you're lazy. Your subjects will say Adobe Cloud and have bizarre requests, you have been warned, down here all quiet like.***
 
 ```
 .\Next.ps1
