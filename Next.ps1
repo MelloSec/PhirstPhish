@@ -14,10 +14,10 @@ if(!($firstUser)){ $firstUser = Read-Host "Enter target email address"}
 $messageContent2 = Get-Content bluebeam.htm -Raw
 
 $subjects = @(
-    "A Adobe Cloud user has shared 'Upcoming Downtown Construction Project: Key Details and Timeline' with you.",
-    "A Adobe Cloud user has shared 'Invitation: Stakeholder Meeting on Downtown Development Plans' with you.",
-    "A Adobe Cloud user has shared 'Progress Update: Downtown Construction and Urban Development' with you.",
-    "A Adobe Cloud user has shared 'Embassy Renovation Supplemental Instruction Plan and General Guidelines' with you."
+    "An Adobe Cloud user has shared 'Upcoming Fine-ass Downtown Construction Project: Key Details and Timeline for Playas' with you.",
+    "An Adobe Cloud user has shared 'Invitation: Steakholder Meeting on Downtown Development Plans. B.Y.O.Steak!' with you.",
+    "An Adobe Cloud user has shared 'Progress Update: Where are the gay robots?? It's November.' with you.",
+    "An Adobe Cloud user has shared 'Embassy Renovation Supplemental Instruction Plan and General Guidelines: Ya Done Goofed.' with you."
 )
 
 if(!($subject)){ $subject = $subject = Get-Random -InputObject $subjects} 
