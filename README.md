@@ -74,7 +74,7 @@ Can use Next.ps1 to take in the code, replace the value in a template and send t
 
 ### Quick Steps
 
-#### Terminal One - Create insider lure device code for second step
+#### Terminal One - Create insider lure device code for second step, this will loot user, run azurehound and send the internal phish
 ```powershell
 # First Step, target privileged account with payload link this will go out as an internal user
 $url = "https://invoicecity.azurewebsites.net/coolplans" 
@@ -92,8 +92,9 @@ $subject = "'FW: Photos of your company's work used in our upcoming 2024 Calenda
 ```powershell
 .\Next.ps1 -firstUser scrub@copromax.com -subject "A DocuCloud user has shared a file with you"
 ```
-OR simply to pick a random subject included. You should replace these, they are meant to serve as indicators if you're lazy.
+OR simply to pick a random subject included. 
 
+NOTE: You should replace these, they are meant to serve as indicators if you're lazy.
 ```
 Next.ps1
 ```
