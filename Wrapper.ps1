@@ -123,7 +123,7 @@ Write-Output "$userCode" | Out-File .\user_code.txt
 Write-Host "User Code: $userCode"
 
 Write-Output "Sign in with your sender's account here. Template will be sent from this mailbox."
-.\Next.ps1 -firstUser $firstUser -code $userCode
+.\Next.ps1 -firstUser $firstUser -code $userCode -template $template
 
 Write-Output "Background process is polling endpoint for the authentication. If the user authenticates, automated post-exploitation will be performed inside that process."
 # Write-Output "Script will continue when process exits."

@@ -2,37 +2,36 @@ param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$code,
 
-    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [Parameter(ValueFromPipeline=$true)]
     [string]$template
 )
 
-# arg parse and define the source and destination file paths
-if($template = "bluebeam"){
+# Define the source and destination file paths based on the template
+if($template -eq "bluebeam"){
     $sourceFile = ".\Templates\BluebeamShareHTML.htm"
     $destinationFile = ".\Templates\bluebeam.htm"
-    }
-
-if($template = "chatgpt"){
-    $sourceFile = ".\Templates\chatGPTHTML.htm"
+}
+elseif($template -eq "chatgpt"){
+    $sourceFile = ".\Templates\chatGPTHTML.html"
     $destinationFile = ".\Templates\chatgpt.htm"
-    }
-
-if($template = "blonde"){
+}
+elseif($template -eq "blonde"){
     $sourceFile = ".\Templates\blondeHTML.html"
-    $destinationFile = ".\Templates\blonde.html"
-    }
-    
-if($template = "fondo"){
+    $destinationFile = ".\Templates\blonde.htm"
+}
+elseif($template -eq "fondo"){
     $sourceFile = ".\Templates\fondoHTML.html"
-    $destinationFile = ".\Templates\fondo.html"
-    }
-    
-if(!($template)){
+    $destinationFile = ".\Templates\fondo.htm"
+}
+else{
+    # Default to bluebeam if no template is specified
     $sourceFile = ".\Templates\BluebeamShareHTML.htm"
     $destinationFile = ".\Templates\bluebeam.htm"
-    }       
+}
 
-Copy-Item -Path $sourceFile -Destination $destinationFile
+
+Write-Output "$template selected."
+Copy-Item -Path $sourceFile -Destination $destinationFile -Force
 
 # Read in the file
 $content = Get-Content -Path $destinationFile -Raw
