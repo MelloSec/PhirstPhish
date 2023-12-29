@@ -7,7 +7,9 @@ param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$subject,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$Token
+    [string]$Token,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$template
 )
 
 # Check if AADInternals module is available

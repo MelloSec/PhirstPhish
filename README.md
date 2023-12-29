@@ -4,7 +4,7 @@
 
 #### Overview
 
-This is a script kit to assist in device code phishing during Azure/O365 penetration tests. This tool was made to solve one problem - If you only get one chance, and then kicked out immediately, what would you hope you could get?
+This is a script kit to assist in device code phishing during Azure/O365 penetration tests. This tool was made to solve one problem - If you only get one chance, and then kicked out immediately, what would you hope you could do?
 
 We trigger an authentication flow for the graph and request a device code that is used to sign in. This will give us an access token, and our refresh token. The refresh token allows us to request new access tokens for various other Microsoft services. By refreshing new access tokens for Azure Core Management, MSTeams, Outlook, etc, we're able to move from service to service and pillage what we need without signing in multiple times on multiple sites. This allows for repid exfiltration of data from multiple avenues quicker than an analyst can triage any forthcoming alert. By minting an Outlook token, we can use the account to send emails and control the users mailbox.   
 
@@ -42,7 +42,17 @@ RoadTools.ps1 - proof of concept that uses TokenTactics to generate a token for 
 
 Templates - Two Outlook template files for chatgpt and bluebeam "activation code" lures
 
+
+
 #### Usage
+
+### Wrapper Script
+
+
+
+
+
+### Using the individual scripts
 
 No additional phishing targets, no access tokens
 
@@ -62,7 +72,7 @@ Internal Phishing - Target additional mailbox with compromised account and a cus
 .\PhirstPhish.ps1 -messageContent "Hey, did you see who they're letting go? Check it out https://notices.azurewebsites.net/terminations.pdf" -targetUser accounting@corpomax.com
 ```
 
-Chaos Phishing - Blast the Whole Tenant using the generated users list and a custom messsage
+Chaos Phishing - Blast the Whole Tenant using the generated users list and a custom messsage. They never let ya do it, though.
 
 ```powershell
 .\PhirstPhish.ps1 -messageContent "Hey, did you see who they're letting go? Check it out https://notices.azurewebsites.net/terminations.pdf" -targetUser all

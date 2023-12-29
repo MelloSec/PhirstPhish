@@ -9,7 +9,9 @@ param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$subject,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$Token
+    [string]$Token,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$template
 )
 
 $banner = @"
@@ -91,18 +93,19 @@ Write-Host $banner
 
 # Define the script and its parameters
 $scriptPath = ".\PhirstPhish.ps1"
-$scriptParams = "-targetUser $targetUser -messageContent $messageContent -subject $subject"
+if($template){ $scriptParams = "-targetUser $targetUser -messageContent $messageContent -subject $subject -template $template" }
+else{$scriptParams = "-targetUser $targetUser -messageContent $messageContent -subject $subject"}
 
 Write-Output "Starting PhirstPhish.ps1 in a separate process. Required modules all dependencies will be installed and capture the code generated for the template."
-Write-Output "Be patient! Output will resume here when the code is generated, and you will prompted to sign in with your sender's account."
+Write-Output "Be patient! Output will resume here when the code is generated. You will prompted to sign in with your sender's account to send the first round."
 
-# Start the script in a new process
+# Start the script in a new process, so we can poll the oauth endpoint in the background.
 $process = Start-Process powershell -ArgumentList "$scriptPath $scriptParams" -PassThru -RedirectStandardOutput "output.txt" # -WindowStyle minimized
 
 # Wait for the file to have content 
 Start-Sleep -Seconds 1
 
-# Continuously check the output file for the user code
+# Continuously check the output file from the background process for the user code 
 $userCode = $null
 while ($null -eq $userCode -and -not $process.HasExited) {
     $output = Get-Content "output.txt" -Tail 10 # Read the last 10 lines of the output
@@ -157,6 +160,6 @@ if(test-path *.json) { Remove-Item -force *.json }
 # $firstUser = ""
 # $messageContent = "test"
 # $subject = "Hey there"
-
-# wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject
+# $template = "chatgpt"
+# wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template
 
