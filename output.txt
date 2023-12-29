@@ -1,0 +1,15 @@
+At line:1 char:74
++ ... ish.ps1 -targetUser rmattingly@anchorconst.com -messageContent <html>
++                                                                    ~
+The '<' operator is reserved for future use.
+At line:3 char:22
++  <p>Hey good morning,</p>
++                      ~
+Missing expression after ',' in pipeline element.
+At line:3 char:22
++  <p>Hey good morning,</p>
++                      ~
+The '<' operator is reserved for future use.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : RedirectionNotSupported
+ 
