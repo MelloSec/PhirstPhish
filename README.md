@@ -1,20 +1,18 @@
-## PhirstPhish
-
 ![image](./ascii.png)
 
 ### "If you only get one.."
 
 #### Overview
 
-This is a proof-of-concept script kit to assist in device code phishing during Azure/O365 penetration tests. This tool was made to solve one problem - If you only get one chance, and then kicked out immediately, what would you hope you could do in that window? This tool will send a device code in one of the email templates, loot that users email and teams, then send an email as that user to whoever we choose. Use your first target to phish your second from a trusted address. It has optional modules for azurehound and some other recon steps. 
+This is a proof-of-concept script kit to assist in device code phishing during Azure/O365 testing. This tool was made to solve one problem - If you only get one chance, and then kicked out immediately, what would you hope you could do in that window? This tool will send a device code in one of the email templates, loot that users email and teams, then send an email as that user to whoever we choose. Use your first target to phish your second from a trusted address. It has optional modules for azurehound and some other recon steps. 
 
-We trigger an authentication flow for the graph and request a device code that is used to sign in. This will give us an access token, and our refresh token. The refresh token allows us to request new access tokens for various other Microsoft services. By refreshing new access tokens for Azure Core Management, MSTeams, Outlook, etc, we're able to move from service to service and pillage what we need without signing in multiple times on multiple sites. This allows for repid exfiltration of data from multiple avenues quicker than an analyst can triage any forthcoming alert. By minting an Outlook token, we can use the account to send emails and control the users mailbox.   
+We import TokenTactics and AADInternals, then trigger an authentication flow for the graph and request a device code that is used to sign in. The device code gets replaced in a template and a sign in is prompted for the sending user. This is your pretext. This will give us an access token, and our refresh token. We use our access token with Outlook to send the template to the first user with the codethey need to use. When they enter this code, we get a set of tokens for them. The refresh token allows us to request new access tokens for various other Microsoft services. By refreshing new access tokens for Azure Core Management, MSTeams, Outlook, etc, we're able to move from service to service and pillage what we need without signing in multiple times on multiple sites. This allows for repid exfiltration of data from multiple avenues quicker than an analyst can triage any forthcoming alert. By minting an Outlook token, we can use the new account to send emails to additional targets and control the users mailbox.   
 
 Script will check your OS (Windows or Linux) and install the required modules and Azurehound binary needed for post-exploitation activity automatically. That said, this may be buggy on linux, I haven't put it through it's paces there.
 
 #### Usage
 
-Use a -very- important project manager as your initial access vector, use their organization account to run azurehound to map the tenant and send a send a link internally to a payload hosted elsewhere. Installs requirements, runs azurehound module. You won't need them every time, but is a good way to start.
+Use a -very- important project manager as your initial access vector, use their organization account to run azurehound to map the tenant and send a link internally to a payload hosted elsewhere. Installs requirements, runs azurehound module. You won't need them every time, but is a good way to start.
 
 The variable firstuser is the one you want to hijack, targetUser is the eventual target you hope to reach. Template will be sent first in the background, if the user approves, the message passed here will be emailed to them as the first victim.
 
@@ -54,7 +52,7 @@ Using the latest version of Azurehound for your platform, the Azure tenant will 
 
 
 #### Phase 2 - Loot
-It will dump the compromised users last 200 emails from their inbox, dump all their teams messages, and set their status to 'Gone Phishin'" by default. A user list is generated for further phishing attacks, as well as groups, insider recon, etc, in the working directory of the script. 
+It will dump the compromised users last 200 emails from their inbox and all their teams messages by default. Optional modules include azureHound, azureAd and Recon. If the azureAd module is used, a user list is generated for further phishing attacks, as well as groups. if the recon module is used, AADInternals authenticated recon modules will run.  
 
 <b><u>WARNING:</u></b> Just to re-iterate that last bit.. this will export a lot of sensitive information to the folder you run this from, as that is it's intended purpose. Please clean up your workspace / don't commit the loot to main 
 
