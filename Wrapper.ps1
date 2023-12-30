@@ -99,6 +99,11 @@ $banner = @"
 "@
 Write-Host $banner
 
+if(Test-Path ".\output.txt"){ Remove-item ".\output.txt"}
+if(Test-Path ".\user_code.txt"){ Remove-item ".\user_code.txt"}
+if(Test-Path ".\TokenLog.log"){ Remove-item ".\TokenLog.log"}
+if(Test-Path ".\target.txt"){ Remove-item ".\target.txt"}
+
 # Install and Import
 # if($install = $true){
 #     Write-Output "Installing modules"
@@ -130,10 +135,21 @@ if ($azureAd) {
     $argumentList += "-azuread"
 }
 
+# Correct the parameter passing for string parameters
+if ($targetUser) {
+    $argumentList += "-targetUser `"$targetUser`""
+}
+
+if ($subject) {
+    $argumentList += "-subject `"$subject`""
+}
+
+if ($messageContent) {
+    $argumentList += "-messageContent `"$messageContent`""
+}
+
 # Start the PowerShell script with the constructed argument list
 Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1 $($argumentList -join ' ')" -RedirectStandardOutput "output.txt"
-
-
 
 Start-Sleep -Seconds 1
 
@@ -210,5 +226,6 @@ Write-Output "Sign in with your sender's account here. Template will be sent fro
 # $messageContent = "test"
 # $subject = "Hey there"
 # $template = "chatgpt"
-# wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template
+# .\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template
+
 
