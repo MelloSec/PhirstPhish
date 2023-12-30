@@ -112,13 +112,6 @@ if($install){
 Write-Output "Importing modules"
 .\Scripts\Import.ps1
 
-# Start the separate script as a new process and redirect output to a file
-# if($azureHound -eq $true){ Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1 -azurehound" -RedirectStandardOutput "output.txt"}
-# if($recon -eq $true){ Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1 -recon" -RedirectStandardOutput "output.txt"}
-# if($azureAd -eq $true){ Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1 -azuread" -RedirectStandardOutput "output.txt"}   # -NoNewWindow
-# else{ Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1" -RedirectStandardOutput "output.txt" }
-# # Wait for the file to have content 
-
 # Initialize an empty argument list
 $argumentList = @()
 
