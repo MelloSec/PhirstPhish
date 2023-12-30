@@ -19,7 +19,7 @@ The variable firstuser is the one you want to hijack, targetUser is the eventual
 ```powershell
 $targetUser = "helpdesk@corpomax.com"
 $firstUser = "ClickamusMaximus@corpomax.com"
-$messageContent = "Hey guys, <p> the client is asking us to install an addin, something to do with the 'period net' framework and PDFs, sounds gross, haha. Can you take a look and see if we can get it installed? Thy're really breathing down our necks https://pdfutil.azurewebsites.net/addin </p> <p> Thanks guys you're the unsung heroes of CorpoMax, they should be paying you more! </p> <p> Sincerely Yours.</p>"
+$messageContent = "Hey guys, <p> the client is asking us to install an addin, something to do with the 'period net' framework and PDFs, sounds gross, haha. Can you take a look and see if we can get it installed? Thy're really breathing down our necks https://pdfutil.azurewebsites.net/addin </p> <p> Thanks guys you're the unsung heroes of CorpoMax, they should pay you more! </p> <p> Sincerely Yours.</p>"
 $subject = "Software for Project Management"
 $template = "bluebeam" # or chatgpt, or one of the secret ones 
 
@@ -31,7 +31,7 @@ Same scenario, but quicker with no installation or Azurehound.
 ```powershell
 $targetUser = "helpdesk@corpomax.com"
 $firstUser = "ClickamusMaximus@corpomax.com"
-$messageContent = "Hey guys, <p> the client is asking us to install an addin, something to do with the 'period net' framework and PDFs, sounds gross, haha. Can you take a look and see if we can get it installed? Thy're really breathing down our necks https://pdfutil.azurewebsites.net/addin </p> <p> Thanks guys you're the unsung heroes of CorpoMax, they should be paying you more! </p> <p> Sincerely Yours.</p>"
+$messageContent = "Hey guys, <p> the client is asking us to install an addin, something to do with the 'period net' framework and PDFs, sounds gross, haha. Can you take a look and see if we can get it installed? Thy're really breathing down our necks https://pdfutil.azurewebsites.net/addin </p> <p> Thanks guys you're the unsung heroes of CorpoMax, they should pay you more! </p> <p> Sincerely Yours.</p>"
 $subject = "Software for Project Management"
 $template = "bluebeam"
 
