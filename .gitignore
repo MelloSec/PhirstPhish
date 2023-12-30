@@ -1,0 +1,11 @@
+users.json
+groups.json
+TokenLog.log
+user_code.txt
+output.txt
+azurehound.json
+itrecon.json
+userEnum.json
+members.json
+*.emails.json
+*.teams.json
