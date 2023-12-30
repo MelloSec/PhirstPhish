@@ -1,15 +1,32 @@
 param (
-    [string]$code
+    [string]$code,
+    [string]$template
 )
 
-# Define the source and destination file paths
-$sourceFile = "BluebeamShareHTML.htm"
-$destinationFile = "bluebeam.htm"
+# arg parse and define the source and destination file paths
+if($template = "bluebeam"){
+    $sourceFile = ".\Templates\BluebeamShareHTML.htm"
+    $destinationFile = ".\bluebeam.htm"
+    }
 
-# Copy the source file to the destination
+if($template = "chatgpt"){
+    $sourceFile = ".\Templates\chatGPTHTML.htm"
+    $destinationFile = "chatgpt.htm"
+    }
+
+if($template = "blonde"){
+    $sourceFile = ".\Templates\blondeHTML.html"
+    $destinationFile = ".\Templates\blonde.html"
+    }
+    
+if($template = "fondo"){
+    $sourceFile = ".\Templates\fondoHTML.html"
+    $destinationFile = ".\Templates\fondo.html"
+    }      
+
 Copy-Item -Path $sourceFile -Destination $destinationFile
 
-# Read the content of the copied file
+# Read in the file
 $content = Get-Content -Path $destinationFile -Raw
 
 # Replace the placeholder with the code
