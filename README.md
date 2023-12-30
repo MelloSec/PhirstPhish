@@ -1,6 +1,6 @@
 ## PhirstPhish
 
-![image](ascii.png)
+![image](./ascii.png)
 
 
 ### "If you only get one.."
