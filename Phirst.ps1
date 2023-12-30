@@ -170,16 +170,7 @@ if ($targetUser) {
         # Set-AADIntTeamsStatusMessage -Message "Gone Phishin'" -AccessToken $MSTeamsToken.access_token -Verbose
         # Send-TeamsMessageWithRetry -Recipient $targetUser -Message $teamsMessage
         Write-Output "Sending message..."        
-        $mailuser = $targetUser
-        # if(!($subject)){$subject = "Third-Party Consent for use of your company's intellectual property"}
-        # if(!($messageContent)) { $messageContent = "We have been trying to reach you regarding use of your company's work in our upcoming calendar, please review these forms if you have any concerns or wish to object usage of your logo, etc, etc"}
-        
-        
-        
-        # $subject = "Third-Party Consent for use of your company's intellectual property"
-        # $messageContent = "We have been trying to reach you regarding use of your company's work in our upcoming calendar, please review these forms if you have any concerns or wish to object usage of your logo, etc, etc"
-        # $teamsMessage = $messageContent
-    
+        $mailuser = $targetUser   
         Send-AADIntOutlookMessage -AccessToken $At.access_token -Recipient $mailUser -Subject $subject -Message $teamsMessage
     }
 } else {
