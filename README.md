@@ -12,7 +12,7 @@ Script will check your OS (Windows or Linux) and install the required modules an
 
 #### Usage
 
-Use a -very- important project manager as your initial access vector, use their organization account to run azurehound to map the tenant and send a send a link internally to a payload hosted elsewhere. Installs requirements, runs azurehound module. You won't need them every time, but is a good way to start.
+Use a -very- important project manager as your initial access vector, use their organization account to run azurehound to map the tenant and send a link internally to a payload hosted elsewhere. Installs requirements, runs azurehound module. You won't need them every time, but is a good way to start.
 
 The variable firstuser is the one you want to hijack, targetUser is the eventual target you hope to reach. Template will be sent first in the background, if the user approves, the message passed here will be emailed to them as the first victim.
 
