@@ -12,8 +12,8 @@ param (
     [string]$Token,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$template,
-    [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [switch]$install = $false,
+    [Parameter()]
+    [switch]$install,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [switch]$azureHound = $false,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -105,10 +105,10 @@ if(Test-Path ".\TokenLog.log"){ Remove-item ".\TokenLog.log"}
 if(Test-Path ".\target.txt"){ Remove-item ".\target.txt"}
 
 # Install and Import
-# if($install = $true){
-#     Write-Output "Installing modules"
-#     .\Scripts\Install.ps1
-# }
+if($install){
+    Write-Output "Installing modules"
+    .\Scripts\Install.ps1
+}
 Write-Output "Importing modules"
 .\Scripts\Import.ps1
 
@@ -176,13 +176,7 @@ Write-Output "Sign in with your sender's account here. Template will be sent fro
 .\Next.ps1 -firstUser $firstUser -userCode $userCode -template $template
 
 
-
-
-
-
-
-
-
+# TODO: User needs the feedback that target entered the code, recon ran, etc. As of now we're just finishing while the background continue.
 # Write-Output "Background process is polling endpoint for the authentication. If the user authenticates, automated post-exploitation will be performed inside that process."
 # # Write-Output "Script will continue when process exits."
 
