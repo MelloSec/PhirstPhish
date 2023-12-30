@@ -15,17 +15,6 @@ $code = $userCode
 if(!($code)){ $code = Read-Host "Enter Device code from PhirstPhish step" }
 if(!($firstUser)){ $firstUser = Read-Host "Enter target email address"}
 
-
-# elseif($template -eq "bluebeam") { $templatePath = ".\Templates\bluebeam.htm" }
-# elseif($template -eq "blonde") { $templatePath = ".\Templates\blonde.htm" }
-# elseif($template -eq "fondo") { $templatePath = ".\Templates\fondo.htm" }
-
-# Parameters match filename in templates, if we specify a template, find it's twin, else, bluebeam
-
-# if($template -eq "chatgpt") { $templatePath = ".\Templates\chatgpt.htm" }
-# if($template -eq "chatgpt"){$templatePath = ".\Templates\chatgpt.htm"}
-
-
 $template = $template.Trim()
 
 switch ($template) {
