@@ -13,7 +13,9 @@ param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$template,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [switch]$install = $false    
+    [switch]$install = $false,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [switch]$azureHound = $false     
 )
 
 $banner = @"
@@ -102,8 +104,8 @@ Write-Output "Importing modules"
 .\Scripts\Import.ps1
 
 # Start the separate script as a new process and redirect output to a file
-Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1" -RedirectStandardOutput "output.txt" # -NoNewWindow
-
+if($azureHound -eq $true){ Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1 -azurehound" -RedirectStandardOutput "output.txt"} # -NoNewWindow
+else{ Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1" -RedirectStandardOutput "output.txt" }
 # Wait for the file to have content 
 Start-Sleep -Seconds 1
 
@@ -126,12 +128,14 @@ Write-Host "User Code: $userCode"
 
 # Replace Values in Template
 
-# Write-Output "Sign in with your sender's account here. Template will be sent from this mailbox."
+Write-Output "Sign in with your sender's account here. Template will be sent from this mailbox."
 .\Next.ps1 -firstUser $firstUser -userCode $userCode -template $template
 
+
+Read-Host "Keep Window Open"
+
 # Send email to initial target
-if(!($subject)){ $subject = Get-Random -InputObject $subjects} 
-.\Final.ps1 -targetUser $firstUser -messageContent $messageContent2 -subject $subject
+
 
 
 

