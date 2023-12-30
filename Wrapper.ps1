@@ -178,13 +178,6 @@ Write-Output "Sign in with your sender's account here. Template will be sent fro
 
 
 
-# Send email to initial target
-
-
-
-
-
-
 
 
 
@@ -193,26 +186,12 @@ Write-Output "Sign in with your sender's account here. Template will be sent fro
 # Write-Output "Background process is polling endpoint for the authentication. If the user authenticates, automated post-exploitation will be performed inside that process."
 # # Write-Output "Script will continue when process exits."
 
-# $filePath = '.\switch.txt'
+# $filePath = '.\target.txt'
 # # Poll for the existence of the file
 # while (-not (Test-Path -Path $filePath)) {
-#     Write-Output "Checking for switch.txt.."
-#     Start-Sleep -Seconds 5 # Wait for 5 seconds before checking again
+#     Write-Output "Checking for target file."
+#     Start-Sleep -Seconds 2 # Wait for 5 seconds before checking again
 # }
-
-# # Once the file exists, read its contents
-# Write-Output "File exists!"
-# $contents = Get-Content -Path $filePath
-
-# # Display the contents
-# Write-Output "$contents took the bait."
-
-# $process.WaitForExit()
-# $process | Stop-Process -Force -Confirm
-# # Remove our switch file
-# if(test-path .\switch.txt){ Remove-Item -force .\switch.txt } 
-
-# # $process.Kill()
 
 # Read-Host "Clean up and clear output?"
 # # $processes = Get-Process powershell | Sort-Object StartTime -Descending | Select-Object -First 1 | ForEach-Object { $_.Kill() }

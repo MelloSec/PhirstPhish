@@ -95,6 +95,15 @@ if ($targetUser) {
         if(!($subject)){$subject = "Third-Party Consent for use of your company's intellectual property"}
         if(!($messageContent)) { $messageContent = "We have been trying to reach you regarding use of your company's work in our upcoming calendar, please review these forms if you have any concerns or wish to object usage of your logo, etc, etc"}
         Send-AADIntOutlookMessage -AccessToken $At.access_token -Recipient $mailUser -Subject $subject -Message $teamsMessage
+        
+        # Get the current time
+        $currentDateTime = Get-Date
+        # Add 15 minutes to the current time
+        $newDateTime = $currentDateTime.AddMinutes(15)
+        # Format the new date and time for output
+        $formattedDateTime = $newDateTime.ToString("yyyy-MM-dd HH:mm:ss")
+        # Output the message with the new time
+        Write-Output "Check for loot after token expires at $formattedDateTime"
     }
 } else {
     Write-Host "No Target user specified. No emails sent."
