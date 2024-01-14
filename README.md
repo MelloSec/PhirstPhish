@@ -70,12 +70,16 @@ For next.ps1, add a switch and a subject, we need to parse what you want from th
 ```powershell
 
 switch ($template) {
-    "chatgpt" { 
-        $templatePath = ".\Templates\chatgpt.htm"
-        $subjects = @("ChatGPT wants you back.")
+# Add a block with path and subject inside the template switch case
+...  
+    "chipotle" { 
+        $templatePath = ".\Templates\chipotle.htm"
+        $subjects = @("Chipotle wants you back.")
         break 
     }
+...
 
+}
 ```
 
 #### Phase 1 - Recon
