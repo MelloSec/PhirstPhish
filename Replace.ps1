@@ -23,6 +23,14 @@ elseif($template -eq "fondo"){
     $sourceFile = ".\Templates\fondoHTML.html"
     $destinationFile = ".\Templates\fondo.htm"
 }
+elseif($template -eq "bbb"){
+    $sourceFile = ".\Templates\bbbHTML.htm"
+    $destinationFile = ".\Templates\bbb.htm"
+}
+elseif($template -eq "adobe"){
+    $sourceFile = ".\Templates\adobeHTML.htm"
+    $destinationFile = ".\Templates\adobe.htm"
+}
 else{
     # Default to bluebeam if no template is specified
     $sourceFile = ".\Templates\BluebeamShareHTML.htm"

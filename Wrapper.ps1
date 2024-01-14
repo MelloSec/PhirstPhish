@@ -99,10 +99,8 @@ $banner = @"
 "@
 Write-Host $banner
 
-if(Test-Path ".\output.txt"){ Remove-item ".\output.txt"}
-if(Test-Path ".\user_code.txt"){ Remove-item ".\user_code.txt"}
-if(Test-Path ".\TokenLog.log"){ Remove-item ".\TokenLog.log"}
-if(Test-Path ".\target.txt"){ Remove-item ".\target.txt"}
+# Clean up previous runs tokens and output files
+.\Clean.ps1
 
 # Install and Import
 if($install){
