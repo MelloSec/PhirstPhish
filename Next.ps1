@@ -27,7 +27,6 @@ switch ($template) {
         $templatePath = ".\Templates\bluebeam.htm"
         $subjects = @(
             "A Bluebeam Cloud user has shared 'Big City Project: Key Details and Timeline' with you.",
-            "A Bluebeam Cloud user has shared 'Invitation: Steakholder Meeting on Downtown Development Plans. B.Y.O.Beef' with you.",
             "A Bluebeam Cloud user has shared 'Progress Update: Where are the gay robots??' with you.",
             "A Bluebeam Cloud user has shared 'Performance Improvement Plan and General Guidelines.' with you."
         )
@@ -43,13 +42,22 @@ switch ($template) {
         $subjects = @("The Girls of Heavy Industry 2024.")
         break 
     }
+    "bbb" { 
+        $templatePath = ".\Templates\bbb.htm"
+        $subjects = @("Better Business Bureau Service RE: CASE # 97843381")
+        break 
+    }
+    "adobe" { 
+        $templatePath = ".\Templates\adobe.htm"
+        $subjects = @("An Adobe Cloud user has shared 'Invoice #18675309' with you.")
+        break 
+    }
     default {
         Write-Host "No matching template found for '$template'."
         # Handle the case where no valid template is found
         # This could be either setting a default template or exiting the script
     }
 }
-
 
 
 Write-Output "$template template selected. Replacing code."
