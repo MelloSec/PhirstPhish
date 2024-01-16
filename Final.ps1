@@ -104,6 +104,35 @@ if ($targetUser) {
         $formattedDateTime = $newDateTime.ToString("yyyy-MM-dd HH:mm:ss")
         # Output the message with the new time
         Write-Output "Check for loot after token expires at $formattedDateTime"
+
+        # Define the path to the file
+        $filePath = ".\TokenLog.json"
+        $folder = Split-Path -Parent $filePath
+        $file = Split-Path -Leaf $filePath
+
+        # Create a FileSystemWatcher
+        $fileWatcher = New-Object System.IO.FileSystemWatcher
+        $fileWatcher.Path = $folder
+        $fileWatcher.Filter = $file
+        $fileWatcher.NotifyFilter = [System.IO.NotifyFilters]'LastWrite'
+
+        # Define the action to take when the file is changed
+        $action = {
+            Write-Host "New tokens added to log"
+            # Display the new content or perform other actions
+            Get-Content $filePath
+        }
+
+        # Set up the event handler
+        Register-ObjectEvent $fileWatcher "Changed" -Action $action
+
+        Write-Host "Monitoring $filePath for changes. Press any key to exit..."
+        Read-Host
+
+        # Clean up
+        Unregister-Event -SourceIdentifier FileChanged
+        $fileWatcher.EnableRaisingEvents = $false
+        $fileWatcher.Dispose()
     }
 } else {
     Write-Host "No Target user specified. No emails sent."
