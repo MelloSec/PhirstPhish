@@ -140,7 +140,9 @@ if ($messageContent) {
 }
 
 # Start the PowerShell script with the constructed argument list
-Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1 $($argumentList -join ' ')" -RedirectStandardOutput "output.txt"
+#Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1 $($argumentList -join ' ')" -RedirectStandardOutput "output.txt"
+Start-Process -FilePath "powershell.exe" -ArgumentList "-WindowStyle Hidden -File .\Phirst.ps1 $($argumentList -join ' ')" -RedirectStandardOutput "output.txt"
+
 
 Start-Sleep -Seconds 1
 

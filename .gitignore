@@ -4,9 +4,14 @@ TokenLog.log
 user_code.txt
 output.txt
 azurehound.json
-itrecon.json
+intrecon.json
+*recon.json
 userEnum.json
 members.json
 *.emails.json
 *.teams.json
 switch.txt
+*.json
+\loot
+/loot
+*loot*
