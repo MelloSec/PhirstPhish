@@ -21,7 +21,7 @@ WARNING: When you get your first bite, SAVE THAT TOKEN LOG. Get the users tokens
 .\LootStash.ps1
 ```
 
-#### Clear all loog and that folder when you're done
+#### Clear all loot from current dir and that folder when you're done
 ```powershell
 .\ClearLoot.ps1
 ```
