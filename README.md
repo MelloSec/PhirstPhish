@@ -10,27 +10,27 @@ We import TokenTactics and AADInternals, then trigger an authentication flow for
 Script will check your OS (Windows or Linux) and install the required modules and Azurehound binary needed for post-exploitation activity automatically. That said, this may be buggy on linux, I haven't put it through it's paces there.
 
 ### Usage
-You can use a *very* important project manager as your initial access vector, or someone else you'd like to use to map the tenant and send a link internally to a payload hosted elsewhere. Add modules you wish to run as arguments. You won't need Azurehound, etc, every time, but is a good way to start.
+You could choose a *very* important project manager as your initial access vector, or any other verified user you'd like to use to map the tenant and send a link internally to a payload hosted elsewhere. Add modules you wish to run as arguments. You won't need Azurehound, etc, every time, but is a good way to start.
 
 The variable $firstUser is the initial one you want to hijack, $targetUser is the eventual target you hope to reach. Template will be sent first in the background, if the user approves, the message passed here will be emailed to them as the first victim.
 
 WARNING: When you get your first bite, SAVE THAT TOKEN LOG. Get the users tokens, and use them for your foothold. You should have a ton of recon, use this info with these tokens and az cli/AzureAD module to make your next moves. The TokenLog gets refreshed every time you run the script. You'll lose them if you arent mindful. There's a couple scripts to help with this. The first one creates a loot folder and backs up the loot files. It clears them for the next run. This loot folder is in the .gitignore but you should get in the habit of clearing after each run (or open a PR and add a switch case for it)
 
-#### Stash loot in the 'loot' folder  
+#### Stash tokens/TokenLog in the 'loot' folder between runs
 ```powershell
 .\LootStash.ps1
 ```
 
-#### Clear all loot from current dir and that folder when you're done
+#### Clear all sensitive material from current dir and Loot folder when you're done
 ```powershell
 .\ClearLoot.ps1
 ```
 
-#### Install requirements, perform full recon using azuread, AADInternals, and Azurehound modules, attempt to use payroll account to phish a particular accountant
+#### Install requirements, perform all recon using azuread, AADInternals, and Azurehound modules, attempt to use payroll account to phish a particular accountant
 ```powershell
 $targetUser = "accountant@corpomax.com"
 $firstUser = "payroll@corpomax.com"
-$messageContent = "Hey guys, <p> do you have any idea what this is? We need to pay it really soon, but we're having trouble accounting for it: https://collections.azurewebsites.net/invoice </p>  <p> Sincerely Yours.</p>"
+$messageContent = "Hey guys, <p> do you have any idea what this is? We need to pay it today, but we're having trouble accounting for it: https://collections.azurewebsites.net/invoice </p>  <p> Sincerely Yours.</p>"
 $subject = "Invoice #3389 for Professional Services "
 $template = "adobe" # or chatgpt, bluebeam, bbb, one of the secret ones 
 
