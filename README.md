@@ -14,7 +14,7 @@ You could choose a *very* important project manager as your initial access vecto
 
 The variable $firstUser is the initial one you want to hijack, $targetUser is the eventual target you hope to reach. Template will be sent first in the background, if the user approves, the message passed here will be emailed to them as the first victim.
 
-WARNING: When you get your first bite, SAVE THAT TOKEN LOG. Get the users tokens, and use them for your foothold. You should have a ton of recon, use this info with these tokens and az cli/AzureAD module to make your next moves. The TokenLog gets refreshed every time you run the script. You'll lose them if you arent mindful. There's a couple scripts to help with this. The first one creates a loot folder and backs up the loot files. It clears them for the next run. This loot folder is in the .gitignore but you should get in the habit of clearing after each run (or open a PR and add a switch case for it)
+WARNING: When you get your first bite, SAVE THAT TOKEN LOG. Get the users tokens, and use them for your foothold. You should have a ton of recon, use this info with these tokens and az cli/AzureAD module to make your next moves. The TokenLog gets refreshed every time you run the script. You'll lose them if you arent mindful. There's a couple scripts to help with this. The first one creates a loot folder and backs up the loot files. It clears them for the next run. This loot folder is in the .gitignore but you should get in the habit of clearing after each run.
 
 #### Stash tokens/TokenLog in the 'loot' folder between runs
 ```powershell
@@ -25,6 +25,8 @@ WARNING: When you get your first bite, SAVE THAT TOKEN LOG. Get the users tokens
 ```powershell
 .\ClearLoot.ps1
 ```
+
+### Examples
 
 #### Install requirements, perform all recon using azuread, AADInternals, and Azurehound modules, attempt to use payroll account to phish a particular accountant
 ```powershell
@@ -54,7 +56,7 @@ Similar scenario, but trying  to use a new employee to get to a full administrat
 ```powershell
 $targetUser = "admin@corpomax.com"
 $firstUser = "newemployee@corpomax.com"
-$messageContent = "Hey guys, <p> the client is asking us to install an addin, something to do with the 'period net' framework and PDFs, sounds gross, haha. Can you take a look and see if we can get it installed? Thy're really breathing down our necks https://pdfutil.azurewebsites.net/addin </p> <p> Thanks guys you're the unsung heroes of CorpoMax, they should pay you more! </p> <p> Sincerely Yours.</p>"
+$messageContent = "Hey guys, <p> the client is asking us to install an addin, something to do with the 'net' framework and PDFs, sounds important. Can you take a look and see if we can get it installed? Thy're really breathing down our necks https://pdfutil.azurewebsites.net/addin </p> <p> Thanks guys you're the unsung heroes of CorpoMax, they should pay you more! </p> <p> Sincerely Yours.</p>"
 $subject = "Software for Project Management"
 $template = "chatgpt"
 
