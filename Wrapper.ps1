@@ -27,7 +27,9 @@ param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [switch]$azureAd = $false,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [switch]$persistence = $false       
+    [switch]$persistence = $false,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [switch]$GraphRecon = $false         
 )
 
 $banner = @"
@@ -136,6 +138,10 @@ if ($azureAd) {
 
 if ($persistence) {
     $argumentList += "-persistence"
+}
+
+if ($GraphRecon) {
+    $argumentList += "-GraphRecon"
 }
 
 if ($AppName) {
