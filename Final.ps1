@@ -75,7 +75,7 @@ $teamsMessage = $messageContent
 
 function Monitor-JsonFiles {
     param(
-        [string]$user
+        [string]$user,
         [int]$DurationInMinutes = 15,
         [string]$mailUser
     )
@@ -126,7 +126,7 @@ function Monitor-JsonFiles {
     $fileWatcher.Dispose()
 
     Write-Output "Device Code expired at $expirationDateTime."
-    Write-Output "Pretty soon Ler's yellin 'Phish on!'"
+    Write-Output "Phish on."
 }
 
 

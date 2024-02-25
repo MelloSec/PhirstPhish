@@ -25,8 +25,8 @@ RefreshTo-MSGraphToken -refreshtoken  $response.refresh_token -domain $domain -D
 roadrecon auth --access-token $response.access_token
 roadrecon gather
 roadrecon plugin policies 
-roadtx prt -a renew
-roadtx prtauth -c msteams -r msgraph
+# roadtx prt -a renew
+# roadtx prtauth -c msteams -r msgraph
 
 # Register device
 roadtx device -n JustAPrinter
