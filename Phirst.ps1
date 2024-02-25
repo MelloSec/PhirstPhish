@@ -156,7 +156,9 @@ if ($GraphRecon) {
         }
         Import-Module .\Modules\GraphRunner.ps1
         Invoke-ImportTokens -AccessToken $tokens.access_token -RefreshToken $tokens.refresh_token
-        Invoke-GraphRecon -Tokens $tokens
+        Invoke-GraphRecon -Tokens $tokens -PermissionEnum
+        Invoke-DumpCAPS -Tokens $tokens -ResolveGuids
+        Invoke-GraphRunner -Tokens $tokens
         Stop-Transcript
     }
     catch {

