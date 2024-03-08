@@ -25,7 +25,7 @@ param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$Scope,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$CaptureCode, # Generate a CaptureCode elsewhere, use it? Will try
+    [string]$CaptureCode, # Generate a CaptureCode with roadtx , use it? Will try
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$DeviceCode # Generate a Code elsewhere, pass to templating module and replace.ps1
 
