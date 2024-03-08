@@ -52,6 +52,16 @@ switch ($template) {
         $subjects = @("An Adobe Cloud user has shared 'Invoice #18675309' with you.")
         break 
     }
+    "sharepoint" { 
+        $templatePath = ".\Templates\sharepoint.htm"
+        $subjects = @("A Sharepoint user shared a confidential document with you")
+        break 
+    }
+    "vista" { 
+        $templatePath = ".\Templates\vista.htm"
+        $subjects = @("A Vista user shared a confidential document with you")
+        break 
+    }
     default {
         Write-Host "No matching template found for '$template'."
         # Handle the case where no valid template is found

@@ -31,6 +31,14 @@ elseif($template -eq "adobe"){
     $sourceFile = ".\Templates\adobeHTML.htm"
     $destinationFile = ".\Templates\adobe.htm"
 }
+elseif($template -eq "sharepoint"){
+    $sourceFile = ".\Templates\sharepointHTML.htm"
+    $destinationFile = ".\Templates\sharepoint.htm"
+}
+elseif($template -eq "vista"){
+    $sourceFile = ".\Templates\vistaHTML.htm"
+    $destinationFile = ".\Templates\vista.htm"
+}
 else{
     # Default to bluebeam if no template is specified
     $sourceFile = ".\Templates\BluebeamShareHTML.htm"
