@@ -15,3 +15,5 @@ switch.txt
 \loot
 /loot
 *loot*
+/Templates/dc*
+\Templates\dc*
